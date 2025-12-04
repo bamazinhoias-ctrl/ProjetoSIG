@@ -11,6 +11,7 @@ import { Commercial } from './pages/Commercial';
 import { Profile } from './pages/Profile';
 import { CadCidadao } from './pages/CadCidadao';
 import { EVE } from './pages/EVE';
+import { Empreendimentos } from './pages/Empreendimentos';
 import { Contact, Deal, DealStage, View, ActivityType, Appointment, AppointmentType, User, UserRole, Product } from './types';
 
 // Mock Data Initialization (SIG-CESOL Context)
@@ -21,6 +22,7 @@ const INITIAL_USERS: User[] = [
     email: 'admin@cesol.ba.gov.br',
     password: '123456',
     role: UserRole.PRESIDENTE,
+    permissions: [] // Full access by role
   },
   {
     id: '1',
@@ -28,6 +30,16 @@ const INITIAL_USERS: User[] = [
     email: 'coord@cesol.ba.gov.br',
     password: '123456',
     role: UserRole.COORD_GERAL,
+    permissions: [] // Full access by role
+  },
+  {
+    id: '5',
+    name: 'Ana Financeiro',
+    email: 'financeiro@cesol.ba.gov.br',
+    password: '123',
+    role: UserRole.COORD_ADMIN, 
+    avatar: 'https://ui-avatars.com/api/?name=Ana+Financeiro&background=random&color=fff&background=7c3aed',
+    permissions: ['admin', 'comercial']
   },
   {
     id: '2',
@@ -35,7 +47,8 @@ const INITIAL_USERS: User[] = [
     email: 'joao.asp@cesol.ba.gov.br',
     password: '123',
     role: UserRole.AGENTE_PRODUTIVO,
-    avatar: 'https://ui-avatars.com/api/?name=Joao+ASP&background=random'
+    avatar: 'https://ui-avatars.com/api/?name=Joao+ASP&background=random',
+    permissions: ['agenda', 'fomento', 'cadcidadao', 'eve']
   },
   {
     id: '3',
@@ -43,7 +56,8 @@ const INITIAL_USERS: User[] = [
     email: 'ana.asp@cesol.ba.gov.br',
     password: '123',
     role: UserRole.AGENTE_PRODUTIVO,
-    avatar: 'https://ui-avatars.com/api/?name=Ana+ASP&background=random'
+    avatar: 'https://ui-avatars.com/api/?name=Ana+ASP&background=random',
+    permissions: ['agenda', 'fomento', 'cadcidadao', 'eve']
   },
   {
     id: '4',
@@ -51,7 +65,17 @@ const INITIAL_USERS: User[] = [
     email: 'vendas@cesol.ba.gov.br',
     password: '123',
     role: UserRole.AGENTE_VENDA,
-    avatar: 'https://ui-avatars.com/api/?name=Carlos+Vendedor&background=random'
+    avatar: 'https://ui-avatars.com/api/?name=Carlos+Vendedor&background=random',
+    permissions: ['comercial', 'empreendimentos']
+  },
+  {
+    id: '6',
+    name: 'Julia Auxiliar',
+    email: 'aux@cesol.ba.gov.br',
+    password: '123',
+    role: UserRole.AUX_ADMIN,
+    avatar: 'https://ui-avatars.com/api/?name=Julia+Aux&background=random',
+    permissions: ['empreendimentos', 'agenda']
   }
 ];
 
@@ -64,7 +88,14 @@ const INITIAL_CONTACTS: Contact[] = [
     company: 'Comunidade Quilombola Rio das Rãs',
     role: ActivityType.ARTESANATO,
     lastContacted: new Date().toISOString(),
-    notes: 'Produção de biojóias em baixa. Necessitam de design para novas coleções. Equipamentos quebrados.'
+    notes: 'Produção de biojóias em baixa. Necessitam de design para novas coleções. Equipamentos quebrados.',
+    address: 'Estrada Principal, km 12',
+    city: 'Salvador',
+    zone: 'Rural',
+    womenCount: 15,
+    menCount: 2,
+    mainProduct: 'Biojóias de Piaçava',
+    cnpj: '00.000.000/0001-00'
   },
   {
     id: '2',
@@ -74,7 +105,14 @@ const INITIAL_CONTACTS: Contact[] = [
     company: 'Vale do Capão',
     role: ActivityType.AGRICULTURA,
     lastContacted: new Date(Date.now() - 86400000 * 5).toISOString(),
-    notes: 'Produção de mel orgânico. Precisam de certificação sanitária para venda na Loja CESOL.'
+    notes: 'Produção de mel orgânico. Precisam de certificação sanitária para venda na Loja CESOL.',
+    address: 'Zona Rural, Sítio Verde',
+    city: 'Palmeiras',
+    zone: 'Rural',
+    womenCount: 5,
+    menCount: 8,
+    mainProduct: 'Mel Orgânico',
+    cnpj: '11.111.111/0001-11'
   },
   {
     id: '3',
@@ -84,7 +122,13 @@ const INITIAL_CONTACTS: Contact[] = [
     company: 'Bairro da Paz',
     role: ActivityType.CULINARIA,
     lastContacted: new Date(Date.now() - 86400000 * 12).toISOString(),
-    notes: 'Individual. Precisa de MEI e rotulagem nutricional.'
+    notes: 'Individual. Precisa de MEI e rotulagem nutricional.',
+    address: 'Rua da Paz, 102',
+    city: 'Salvador',
+    zone: 'Urbana',
+    womenCount: 1,
+    menCount: 0,
+    mainProduct: 'Bolo de Rolo'
   },
   {
     id: '4',
@@ -94,7 +138,13 @@ const INITIAL_CONTACTS: Contact[] = [
     company: 'Comunidade Rural Esperança',
     role: ActivityType.SERVICOS,
     lastContacted: new Date(Date.now() - 86400000 * 2).toISOString(),
-    notes: 'Falta matéria-prima. Solicitaram adiantamento de insumos.'
+    notes: 'Falta matéria-prima. Solicitaram adiantamento de insumos.',
+    address: 'Vila Esperança, Casa 04',
+    city: 'Juazeiro',
+    zone: 'Rural',
+    womenCount: 8,
+    menCount: 0,
+    mainProduct: 'Costura Criativa'
   }
 ];
 
@@ -211,34 +261,41 @@ export default function App() {
   // State to handle viewing ANOTHER user's profile (Coordinator viewing ASP)
   const [profileUser, setProfileUser] = useState<User | null>(null);
 
+  // Helper to check if user has access to a specific view
+  const hasAccess = (targetView: View, user: User) => {
+    if (!user) return false;
+    
+    // Always open Views
+    if (['dashboard', 'settings', 'profile', 'contacts'].includes(targetView)) return true;
+
+    // Super Admins have full access
+    if (user.role === UserRole.PRESIDENTE || user.role === UserRole.COORD_GERAL) return true;
+
+    // Check specific permissions array (Granted by admin)
+    if (user.permissions?.includes(targetView)) return true;
+
+    // Fallback: Default Role Access (if no specific permission denial exists)
+    switch (targetView) {
+        case 'comercial': return user.role === UserRole.AGENTE_VENDA || user.role === UserRole.COORD_ADMIN;
+        case 'agenda': return user.role === UserRole.AGENTE_PRODUTIVO || user.role === UserRole.AUX_ADMIN;
+        case 'fomento': return user.role === UserRole.AGENTE_PRODUTIVO;
+        case 'cadcidadao': return user.role === UserRole.AGENTE_PRODUTIVO;
+        case 'eve': return user.role === UserRole.AGENTE_PRODUTIVO;
+        case 'admin': return user.role === UserRole.COORD_ADMIN;
+        // New Permission
+        case 'empreendimentos': return user.role === UserRole.AUX_ADMIN || user.role === UserRole.AGENTE_VENDA;
+        default: return false;
+    }
+  };
+
   // Redirect unauthorized users away from restricted views
   useEffect(() => {
-    if (view === 'users' && currentUser) {
-      const allowed = currentUser.role === UserRole.PRESIDENTE || currentUser.role === UserRole.COORD_GERAL;
-      if (!allowed) {
-        setView('dashboard');
-      }
-    }
-    // Restriction for Technical Modules
-    if ((view === 'cadcidadao' || view === 'eve') && currentUser) {
-        const allowed = currentUser.role === UserRole.PRESIDENTE || 
-                        currentUser.role === UserRole.COORD_GERAL || 
-                        currentUser.role === UserRole.AGENTE_PRODUTIVO;
-        if (!allowed) {
+    if (currentUser) {
+        if (!hasAccess(view, currentUser)) {
+            console.warn(`Access denied to ${view} for ${currentUser.role}`);
             setView('dashboard');
         }
     }
-    // New Restriction for Commercial Module
-    if (view === 'comercial' && currentUser) {
-        const allowed = currentUser.role === UserRole.PRESIDENTE ||
-                        currentUser.role === UserRole.COORD_GERAL ||
-                        currentUser.role === UserRole.COORD_ADMIN ||
-                        currentUser.role === UserRole.AGENTE_VENDA;
-        if (!allowed) {
-            setView('dashboard');
-        }
-    }
-
   }, [view, currentUser]);
 
   const handleLogin = (user: User) => {
@@ -306,6 +363,14 @@ export default function App() {
     }
   };
 
+  const handleAddContact = (contact: Contact) => {
+      setContacts([...contacts, contact]);
+  }
+
+  const handleUpdateContact = (contact: Contact) => {
+      setContacts(prev => prev.map(c => c.id === contact.id ? contact : c));
+  }
+
   const handleAddProduct = (product: Product) => {
     setProducts([...products, product]);
   };
@@ -364,7 +429,8 @@ export default function App() {
           deals={deals} 
           totalContacts={contacts.length} 
           users={users} 
-          currentUser={currentUser} 
+          currentUser={currentUser}
+          contacts={contacts} 
         />
       )}
       
@@ -374,6 +440,7 @@ export default function App() {
             contacts={contacts}
             users={users}
             onAddAppointment={handleAddAppointment}
+            currentUser={currentUser}
         />
       )}
 
@@ -407,11 +474,15 @@ export default function App() {
         />
       )}
 
-      {view === 'admin' && (
-        <Administrative />
+      {view === 'admin' && hasAccess('admin', currentUser) && (
+        <Administrative 
+            users={users}
+            products={products}
+            contacts={contacts}
+        />
       )}
 
-      {view === 'users' && (currentUser.role === UserRole.PRESIDENTE || currentUser.role === UserRole.COORD_GERAL) && (
+      {view === 'users' && hasAccess('users', currentUser) && (
         <UserManagement 
           users={users}
           cesolName={cesolName}
@@ -421,6 +492,17 @@ export default function App() {
           onDeleteUser={handleDeleteUser}
           currentUserRole={currentUser.role}
           onViewProfile={handleViewProfile}
+        />
+      )}
+
+      {view === 'empreendimentos' && hasAccess('empreendimentos', currentUser) && (
+        <Empreendimentos 
+            contacts={contacts}
+            users={users}
+            onAddContact={handleAddContact}
+            onUpdateContact={handleUpdateContact}
+            onAddAppointment={handleAddAppointment}
+            currentUser={currentUser}
         />
       )}
       

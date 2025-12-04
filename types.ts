@@ -1,3 +1,4 @@
+
 export enum DealStage {
   AGENDAMENTO = 'Agendamento',
   COLETA_EVE = 'Coleta EVE',
@@ -54,6 +55,7 @@ export interface User {
   password?: string;
   role: UserRole;
   avatar?: string;
+  permissions?: string[]; // List of allowed View IDs (e.g. ['admin', 'comercial'])
 }
 
 export interface Appointment {
@@ -69,14 +71,26 @@ export interface Appointment {
 
 export interface Contact {
   id: string;
-  name: string;
+  name: string; // Nome do Representante
   email: string;
   phone: string;
-  company: string;
+  company: string; // Nome do Empreendimento
   role: ActivityType | string;
   lastContacted: string;
   notes: string;
   address?: string;
+  
+  // Novos Campos
+  city?: string;
+  zone?: 'Urbana' | 'Rural';
+  cnpj?: string;
+  menCount?: number;
+  womenCount?: number;
+  mainProduct?: string;
+  cpf?: string;
+  representativeRole?: string; // Cargo no empreendimento
+  registeredByRole?: string; // Cargo de quem cadastrou
+  registeredDate?: string;
 }
 
 export interface Deal {
@@ -98,4 +112,4 @@ export interface AIAnalysis {
   emailDraft: string;
 }
 
-export type View = 'dashboard' | 'agenda' | 'fomento' | 'cadcidadao' | 'eve' | 'comercial' | 'admin' | 'settings' | 'contacts' | 'users' | 'profile';
+export type View = 'dashboard' | 'agenda' | 'fomento' | 'cadcidadao' | 'eve' | 'comercial' | 'admin' | 'settings' | 'contacts' | 'users' | 'profile' | 'empreendimentos';

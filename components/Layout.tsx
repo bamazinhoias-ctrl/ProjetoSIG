@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Kanban, ShoppingBag, Settings, Layers, Briefcase, LogOut, Calendar, Users, ChevronLeft, ChevronRight, Menu, Moon, Sun, FileText, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Kanban, ShoppingBag, Settings, Layers, Briefcase, LogOut, Calendar, Users, ChevronLeft, ChevronRight, Menu, Moon, Sun, FileText, ClipboardList, Database } from 'lucide-react';
 import { View, User, UserRole } from '../types';
 
 interface LayoutProps {
@@ -56,28 +56,39 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
     switch (view) {
         case 'dashboard': return 'Inteligência de Dados';
         case 'agenda': return 'Operação de Campo';
-        case 'fomento': return 'Módulo Técnico';
+        case 'fomento': return 'Técnico';
         case 'cadcidadao': return 'Cadastro Social';
         case 'eve': return 'Estudo Econômico';
-        case 'comercial': return 'Módulo de Mercado';
-        case 'admin': return 'Módulo Financeiro';
+        case 'comercial': return 'Mercado';
+        case 'admin': return 'Financeiro';
         case 'users': return 'Administração';
+        case 'empreendimentos': return 'Banco de Dados';
         default: return 'Sistema Integrado';
     }
   };
 
-  // Permission Check for Technical Module
-  const canAccessTechnical = 
-    currentUser.role === UserRole.AGENTE_PRODUTIVO || 
-    currentUser.role === UserRole.COORD_GERAL || 
-    currentUser.role === UserRole.PRESIDENTE;
+  // Helper Check Access
+  const checkAccess = (target: View) => {
+      // Super Admins
+      if (currentUser.role === UserRole.PRESIDENTE || currentUser.role === UserRole.COORD_GERAL) return true;
+      
+      // Explicit Permissions
+      if (currentUser.permissions?.includes(target)) return true;
 
-  // Permission Check for Commercial Module
-  const canAccessCommercial = 
-    currentUser.role === UserRole.AGENTE_VENDA || 
-    currentUser.role === UserRole.COORD_ADMIN || 
-    currentUser.role === UserRole.COORD_GERAL || 
-    currentUser.role === UserRole.PRESIDENTE;
+      // Role Defaults
+      switch(target) {
+          case 'agenda': return currentUser.role === UserRole.AGENTE_PRODUTIVO || currentUser.role === UserRole.AUX_ADMIN;
+          case 'fomento': return currentUser.role === UserRole.AGENTE_PRODUTIVO;
+          case 'cadcidadao': return currentUser.role === UserRole.AGENTE_PRODUTIVO;
+          case 'eve': return currentUser.role === UserRole.AGENTE_PRODUTIVO;
+          case 'comercial': return currentUser.role === UserRole.AGENTE_VENDA || currentUser.role === UserRole.COORD_ADMIN;
+          case 'admin': return currentUser.role === UserRole.COORD_ADMIN;
+          case 'users': return currentUser.role === UserRole.COORD_ADMIN;
+          // New Permission Logic for Empreendimentos
+          case 'empreendimentos': return currentUser.role === UserRole.AUX_ADMIN || currentUser.role === UserRole.AGENTE_VENDA;
+          default: return false;
+      }
+  };
 
   return (
     <div className={`flex h-screen overflow-hidden ${isDarkMode ? 'dark' : ''} bg-slate-50 dark:bg-slate-950 transition-colors duration-300`}>
@@ -134,21 +145,34 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
             isCollapsed={isCollapsed}
             onClick={() => onNavigate('dashboard')} 
           />
-          <NavItem 
-            icon={Calendar} 
-            label="Agenda" 
-            isActive={currentView === 'agenda'} 
-            isCollapsed={isCollapsed}
-            onClick={() => onNavigate('agenda')} 
-          />
           
-          {(currentUser.role === UserRole.PRESIDENTE || currentUser.role === UserRole.COORD_GERAL) && (
+          {checkAccess('agenda') && (
+            <NavItem 
+              icon={Calendar} 
+              label="Agenda" 
+              isActive={currentView === 'agenda'} 
+              isCollapsed={isCollapsed}
+              onClick={() => onNavigate('agenda')} 
+            />
+          )}
+          
+          {checkAccess('users') && (
             <NavItem 
               icon={Users} 
-              label="Equipe" 
+              label="Equipe e RH" 
               isActive={currentView === 'users'} 
               isCollapsed={isCollapsed}
               onClick={() => onNavigate('users')} 
+            />
+          )}
+
+          {checkAccess('empreendimentos') && (
+            <NavItem 
+              icon={Database} 
+              label="Empreendimentos" 
+              isActive={currentView === 'empreendimentos'} 
+              isCollapsed={isCollapsed}
+              onClick={() => onNavigate('empreendimentos')} 
             />
           )}
           
@@ -157,17 +181,17 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
             {isCollapsed ? '...' : 'Operacional'}
           </div>
           
-          <NavItem 
-            icon={Kanban} 
-            label="Fomento (Fluxo)" 
-            isActive={currentView === 'fomento'} 
-            isCollapsed={isCollapsed}
-            onClick={() => onNavigate('fomento')} 
-          />
+          {checkAccess('fomento') && (
+            <NavItem 
+                icon={Kanban} 
+                label="Fomento (Fluxo)" 
+                isActive={currentView === 'fomento'} 
+                isCollapsed={isCollapsed}
+                onClick={() => onNavigate('fomento')} 
+            />
+          )}
 
-          {/* New Pages Restricted to Technical Team */}
-          {canAccessTechnical && (
-            <>
+          {checkAccess('cadcidadao') && (
               <NavItem 
                 icon={FileText} 
                 label="CadCidadão" 
@@ -175,6 +199,9 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
                 isCollapsed={isCollapsed}
                 onClick={() => onNavigate('cadcidadao')} 
               />
+          )}
+
+          {checkAccess('eve') && (
               <NavItem 
                 icon={ClipboardList} 
                 label="EVE (Viabilidade)" 
@@ -182,10 +209,9 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
                 isCollapsed={isCollapsed}
                 onClick={() => onNavigate('eve')} 
               />
-            </>
           )}
 
-          {canAccessCommercial && (
+          {checkAccess('comercial') && (
             <NavItem 
               icon={ShoppingBag} 
               label="Comercial (Loja)" 
@@ -195,13 +221,15 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
             />
           )}
 
-          <NavItem 
-            icon={Briefcase} 
-            label="Administrativo" 
-            isActive={currentView === 'admin'} 
-            isCollapsed={isCollapsed}
-            onClick={() => onNavigate('admin')} 
-          />
+          {checkAccess('admin') && (
+            <NavItem 
+                icon={Briefcase} 
+                label="Administrativo" 
+                isActive={currentView === 'admin'} 
+                isCollapsed={isCollapsed}
+                onClick={() => onNavigate('admin')} 
+            />
+          )}
         </nav>
 
         {/* User Footer */}
@@ -217,7 +245,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
               {!isCollapsed && (
                 <div className="flex flex-col overflow-hidden animate-fade-in">
                     <span className="text-sm font-bold text-white truncate max-w-[140px]">{currentUser.name}</span>
-                    <span className="text-[10px] text-slate-500 truncate font-medium max-w-[140px]" title={currentUser.role}>{currentUser.role}</span>
+                    <span className="text-xs text-slate-500 truncate font-medium max-w-[140px]" title={currentUser.role}>{currentUser.role}</span>
                 </div>
               )}
            </div>
@@ -264,15 +292,16 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
                     {getContextLabel(currentView)}
                 </span>
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 capitalize tracking-tight transition-colors leading-none">
-                {currentView === 'fomento' ? 'Módulo 01: Fomento' : 
-                currentView === 'cadcidadao' ? 'CadCidadão (Socioeconômico)' :
+                {currentView === 'fomento' ? 'Fomento' : 
+                currentView === 'cadcidadao' ? 'CadCidadão' :
                 currentView === 'eve' ? 'Estudo de Viabilidade (EVE)' :
-                currentView === 'comercial' ? 'Módulo 02: Comercial' :
-                currentView === 'admin' ? 'Módulo 03: Administrativo' :
-                currentView === 'agenda' ? 'Agenda de Campo' :
-                currentView === 'users' ? 'Gestão de Usuários' :
-                currentView === 'settings' ? 'Meu Perfil' :
-                'Dashboard Estratégico'}
+                currentView === 'comercial' ? 'Comercial' :
+                currentView === 'admin' ? 'Administrativo' :
+                currentView === 'agenda' ? 'Agenda' :
+                currentView === 'users' ? 'Gestão de Equipe & RH' :
+                currentView === 'empreendimentos' ? 'Gestão de Empreendimentos' :
+                currentView === 'settings' ? 'Perfil' :
+                'Dashboard'}
                 </h1>
             </div>
           </div>

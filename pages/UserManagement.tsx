@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { User, UserRole } from '../types';
-import { Users, Save, Plus, Shield, ShieldCheck, User as UserIcon, Building2, Lock, Eye, Pencil, Trash2, X } from 'lucide-react';
+import { User, UserRole, View } from '../types';
+import { Users, Save, Plus, Shield, ShieldCheck, User as UserIcon, Building2, Lock, Eye, Pencil, Trash2, X, CheckSquare, Square } from 'lucide-react';
 
 interface UserManagementProps {
   users: User[];
@@ -12,6 +12,15 @@ interface UserManagementProps {
   onViewProfile: (user: User) => void;
   currentUserRole: UserRole;
 }
+
+const AVAILABLE_PERMISSIONS: { id: string; label: string; view: View }[] = [
+    { id: '1', label: 'Financeiro / Administrativo', view: 'admin' },
+    { id: '2', label: 'Comercial (Loja)', view: 'comercial' },
+    { id: '3', label: 'Fomento (Fluxo)', view: 'fomento' },
+    { id: '4', label: 'EVE (Estudo de Viabilidade)', view: 'eve' },
+    { id: '5', label: 'Agenda Operacional', view: 'agenda' },
+    { id: '6', label: 'Gestão de Equipe (RH)', view: 'users' },
+];
 
 export const UserManagement: React.FC<UserManagementProps> = ({ 
   users, 
@@ -33,7 +42,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({
     name: '',
     email: '',
     password: '',
-    role: UserRole.AGENTE_PRODUTIVO
+    role: UserRole.AGENTE_PRODUTIVO,
+    permissions: []
   });
 
   const handleSaveCesolName = () => {
@@ -48,7 +58,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({
         name: user.name,
         email: user.email,
         password: user.password || '', // Usually keep empty for security, but simple demo
-        role: user.role
+        role: user.role,
+        permissions: user.permissions || []
     });
   };
 
@@ -59,8 +70,20 @@ export const UserManagement: React.FC<UserManagementProps> = ({
         name: '',
         email: '',
         password: '',
-        role: UserRole.AGENTE_PRODUTIVO
+        role: UserRole.AGENTE_PRODUTIVO,
+        permissions: []
     });
+  };
+
+  const togglePermission = (view: string) => {
+      setFormData(prev => {
+          const current = prev.permissions || [];
+          if (current.includes(view)) {
+              return { ...prev, permissions: current.filter(p => p !== view) };
+          } else {
+              return { ...prev, permissions: [...current, view] };
+          }
+      });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -75,7 +98,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({
               email: formData.email,
               password: formData.password,
               role: formData.role,
-              avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=random`
+              avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=random`,
+              permissions: formData.permissions
           };
           onUpdateUser(updatedUser);
           alert('Usuário atualizado com sucesso!');
@@ -87,7 +111,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({
             email: formData.email,
             password: formData.password,
             role: formData.role,
-            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=random`
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=random`,
+            permissions: formData.permissions || []
           });
           alert('Usuário cadastrado com sucesso!');
       }
@@ -101,7 +126,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
       case UserRole.PRESIDENTE: return 'bg-purple-100 text-purple-700 border-purple-200';
       case UserRole.COORD_GERAL: 
       case UserRole.COORD_ADMIN:
-        return 'bg-blue-100 text-blue-700 border-blue-200';
+        return 'bg-brand-100 text-brand-700 border-brand-200';
       default: return 'bg-slate-100 text-slate-700 border-slate-200';
     }
   };
@@ -126,8 +151,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({
 
   const allowedRoles = getAllowedRolesToCreate();
   const canManageCesol = currentUserRole === UserRole.PRESIDENTE;
-  // Specific check for delete/edit permission as requested
   const canManageUsers = currentUserRole === UserRole.PRESIDENTE || currentUserRole === UserRole.COORD_GERAL;
+  const canGrantPermissions = currentUserRole === UserRole.PRESIDENTE || currentUserRole === UserRole.COORD_GERAL;
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto animate-fade-in">
@@ -150,7 +175,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
             <input 
               type="text" 
               disabled={!canManageCesol}
-              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-slate-50"
+              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none disabled:bg-slate-50"
               value={newCesolName}
               onChange={(e) => setNewCesolName(e.target.value)}
               placeholder="Ex: CESOL Litoral Sul"
@@ -158,7 +183,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
             {canManageCesol && (
                 <button 
                 onClick={handleSaveCesolName}
-                className="px-6 py-2 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-900 transition-colors flex items-center gap-2"
+                className="px-6 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors flex items-center gap-2"
                 >
                 <Save className="w-4 h-4" /> Salvar
                 </button>
@@ -200,7 +225,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                         required
                         disabled={allowedRoles.length === 0}
                         type="text" 
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm disabled:bg-slate-50"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none text-sm disabled:bg-slate-50"
                         value={formData.name}
                         onChange={e => setFormData({...formData, name: e.target.value})}
                     />
@@ -211,7 +236,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                         required
                         disabled={allowedRoles.length === 0}
                         type="email" 
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm disabled:bg-slate-50"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none text-sm disabled:bg-slate-50"
                         value={formData.email}
                         onChange={e => setFormData({...formData, email: e.target.value})}
                     />
@@ -222,7 +247,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                         required
                         disabled={allowedRoles.length === 0}
                         type="text" 
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm disabled:bg-slate-50"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none text-sm disabled:bg-slate-50"
                         value={formData.password}
                         onChange={e => setFormData({...formData, password: e.target.value})}
                     />
@@ -231,7 +256,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                     <label className="block text-xs font-medium text-slate-600 mb-1">Cargo / Função</label>
                     <select 
                         disabled={allowedRoles.length === 0}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm disabled:bg-slate-50"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none text-sm disabled:bg-slate-50"
                         value={formData.role}
                         onChange={e => setFormData({...formData, role: e.target.value as UserRole})}
                     >
@@ -239,13 +264,38 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                         <option key={role} value={role}>{role}</option>
                         ))}
                     </select>
-                    {allowedRoles.length > 0 && <p className="text-xs text-slate-400 mt-1">Permissões baseadas no seu nível hierárquico.</p>}
                 </div>
+                
+                {/* Permissions Panel */}
+                {canGrantPermissions && (
+                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 mt-2">
+                        <h4 className="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-1">
+                            <Lock className="w-3 h-3"/> Permissões Extras
+                        </h4>
+                        <div className="space-y-2">
+                            {AVAILABLE_PERMISSIONS.map(perm => (
+                                <button
+                                    key={perm.id}
+                                    type="button"
+                                    onClick={() => togglePermission(perm.view)}
+                                    className="w-full flex items-center gap-2 text-xs text-left text-slate-700 hover:text-slate-900"
+                                >
+                                    {formData.permissions?.includes(perm.view) ? (
+                                        <CheckSquare className="w-4 h-4 text-brand-600" />
+                                    ) : (
+                                        <Square className="w-4 h-4 text-slate-300" />
+                                    )}
+                                    {perm.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 
                 <button 
                     type="submit" 
                     disabled={allowedRoles.length === 0}
-                    className={`w-full py-2.5 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${isEditing ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+                    className={`w-full py-2.5 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${isEditing ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-brand-600 hover:bg-brand-700 text-white'}`}
                 >
                     {isEditing ? <Save className="w-4 h-4"/> : <Plus className="w-4 h-4" />} 
                     {isEditing ? 'Salvar Alterações' : 'Adicionar Membro'}
@@ -258,7 +308,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
             <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4">Equipe Atual ({users.length})</h3>
             <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
               {users.map(user => (
-                <div key={user.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 hover:border-blue-200 transition-colors group">
+                <div key={user.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 hover:border-brand-200 transition-colors group">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm overflow-hidden">
                         {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : (user.role === UserRole.PRESIDENTE ? <Shield className="w-5 h-5 text-purple-600"/> : <UserIcon className="w-5 h-5"/>)}
@@ -278,7 +328,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
                       <button 
                         onClick={() => onViewProfile(user)}
                         title="Ver Perfil"
-                        className="flex items-center justify-center w-8 h-8 text-slate-500 hover:text-blue-600 bg-white border border-slate-200 rounded-lg hover:border-blue-300 transition-all"
+                        className="flex items-center justify-center w-8 h-8 text-slate-500 hover:text-brand-600 bg-white border border-slate-200 rounded-lg hover:border-brand-300 transition-all"
                       >
                         <Eye className="w-4 h-4" />
                       </button>

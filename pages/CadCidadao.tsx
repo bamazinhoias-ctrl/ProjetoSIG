@@ -26,7 +26,7 @@ export const CadCidadao: React.FC = () => {
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <UserPlus className="w-6 h-6 text-blue-600" />
+            <UserPlus className="w-6 h-6 text-brand-600" />
             CadCidadão
           </h2>
           <p className="text-sm text-slate-500">Cadastro Socioeconômico de Beneficiários</p>
@@ -37,7 +37,7 @@ export const CadCidadao: React.FC = () => {
                 <input 
                     type="text" 
                     placeholder="Buscar por CPF..." 
-                    className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 outline-none"
                 />
             </div>
         </div>
@@ -55,7 +55,7 @@ export const CadCidadao: React.FC = () => {
                     <input 
                         type="text" 
                         required
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all"
                         value={formData.nome}
                         onChange={e => setFormData({...formData, nome: e.target.value})}
                     />
@@ -67,7 +67,7 @@ export const CadCidadao: React.FC = () => {
                         type="text" 
                         required
                         placeholder="000.000.000-00"
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all"
                         value={formData.cpf}
                         onChange={e => setFormData({...formData, cpf: e.target.value})}
                     />
@@ -77,7 +77,7 @@ export const CadCidadao: React.FC = () => {
                     <label className="block text-xs font-medium text-slate-700 mb-1">NIS / PIS</label>
                     <input 
                         type="text" 
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all"
                         value={formData.nis}
                         onChange={e => setFormData({...formData, nis: e.target.value})}
                     />
@@ -88,7 +88,7 @@ export const CadCidadao: React.FC = () => {
                     <input 
                         type="date" 
                         required
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all"
                         value={formData.dataNascimento}
                         onChange={e => setFormData({...formData, dataNascimento: e.target.value})}
                     />
@@ -97,7 +97,7 @@ export const CadCidadao: React.FC = () => {
                 <div>
                     <label className="block text-xs font-medium text-slate-700 mb-1">Escolaridade</label>
                     <select 
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all"
                         value={formData.escolaridade}
                         onChange={e => setFormData({...formData, escolaridade: e.target.value})}
                     >
@@ -119,7 +119,7 @@ export const CadCidadao: React.FC = () => {
                         <label className="block text-xs font-medium text-slate-700 mb-1">Endereço Residencial</label>
                         <input 
                             type="text" 
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all"
                             value={formData.endereco}
                             onChange={e => setFormData({...formData, endereco: e.target.value})}
                         />
@@ -128,7 +128,7 @@ export const CadCidadao: React.FC = () => {
                         <label className="block text-xs font-medium text-slate-700 mb-1">Comunidade / Associação</label>
                         <input 
                             type="text" 
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all"
                             value={formData.comunidade}
                             onChange={e => setFormData({...formData, comunidade: e.target.value})}
                         />
@@ -139,7 +139,7 @@ export const CadCidadao: React.FC = () => {
                             <Phone className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                             <input 
                                 type="text" 
-                                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all"
                                 value={formData.telefone}
                                 onChange={e => setFormData({...formData, telefone: e.target.value})}
                             />
@@ -151,7 +151,7 @@ export const CadCidadao: React.FC = () => {
                             <Mail className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                             <input 
                                 type="email" 
-                                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition-all"
                                 value={formData.email}
                                 onChange={e => setFormData({...formData, email: e.target.value})}
                             />
@@ -163,7 +163,7 @@ export const CadCidadao: React.FC = () => {
             <div className="flex justify-end pt-4">
                 <button 
                     type="submit" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg shadow-sm flex items-center gap-2 transition-all"
+                    className="bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 px-6 rounded-lg shadow-sm flex items-center gap-2 transition-all"
                 >
                     <Save className="w-4 h-4" /> Salvar Cadastro
                 </button>

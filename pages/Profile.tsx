@@ -94,7 +94,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
                 <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">{user.name}</h1>
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm text-slate-600">
                     <span className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200 rounded-full font-medium">
-                        <Shield className="w-3.5 h-3.5 text-blue-600" /> {user.role}
+                        <Shield className="w-3.5 h-3.5 text-brand-600" /> {user.role}
                     </span>
                     <span className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200 rounded-full">
                         <Mail className="w-3.5 h-3.5 text-slate-400" /> {user.email}
@@ -104,7 +104,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
                         <Shield className="w-3 h-3"/> Visualização
                     </div>
                     ) : (
-                        <div className="px-3 py-1 rounded-full text-xs font-bold border border-blue-200 bg-blue-50 text-blue-700 flex items-center gap-1">
+                        <div className="px-3 py-1 rounded-full text-xs font-bold border border-brand-200 bg-brand-50 text-brand-700 flex items-center gap-1">
                             <CheckCircle className="w-3 h-3"/> Ativo
                         </div>
                     )}
@@ -127,14 +127,14 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
                         </div>
                     </div>
                 </div>
-                <div className="p-4 rounded-xl bg-blue-50 border border-blue-100">
+                <div className="p-4 rounded-xl bg-brand-50 border border-brand-100">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white text-blue-600 rounded-lg shadow-sm">
+                        <div className="p-2 bg-white text-brand-600 rounded-lg shadow-sm">
                             <ShoppingBag className="w-5 h-5" />
                         </div>
                         <div>
-                            <p className="text-xs text-blue-800 font-bold uppercase">Ticket Médio</p>
-                            <p className="text-xl font-bold text-blue-900">R$ 45,90</p>
+                            <p className="text-xs text-brand-800 font-bold uppercase">Ticket Médio</p>
+                            <p className="text-xl font-bold text-brand-900">R$ 45,90</p>
                         </div>
                     </div>
                 </div>
@@ -164,9 +164,9 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
         ) : (
              /* STANDARD DASHBOARD (Operations/Management) */
             <div className={`grid grid-cols-1 md:grid-cols-2 ${isASP ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 mt-8 pt-8 border-t border-slate-100`}>
-                <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
+                <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-brand-200 transition-colors">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-slate-100">
+                        <div className="p-2 bg-white text-brand-600 rounded-lg shadow-sm border border-slate-100">
                             <Briefcase className="w-5 h-5" />
                         </div>
                         <div>
@@ -247,7 +247,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
                 <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
                     <div className="flex items-center justify-between mb-6">
                          <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <BarChart3 className="w-5 h-5 text-blue-600"/> Performance de Vendas
+                            <BarChart3 className="w-5 h-5 text-brand-600"/> Performance de Vendas
                          </h3>
                          <select className="text-sm border-none bg-slate-50 rounded-lg px-3 py-1 font-medium text-slate-600 outline-none cursor-pointer">
                              <option>Últimos 7 dias</option>
@@ -261,8 +261,8 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
                          </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 mt-6">
-                         <div className="p-4 bg-blue-50 rounded-xl">
-                             <p className="text-xs text-blue-600 font-bold uppercase mb-1">Produto Destaque</p>
+                         <div className="p-4 bg-brand-50 rounded-xl">
+                             <p className="text-xs text-brand-600 font-bold uppercase mb-1">Produto Destaque</p>
                              <p className="font-bold text-slate-800">Kit Pano de Prato</p>
                              <p className="text-xs text-slate-500">12 unidades vendidas</p>
                          </div>
@@ -301,10 +301,10 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
                                 const isExpanded = expandedDealId === deal.id;
                                 
                                 return (
-                                    <div key={deal.id} className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'shadow-md border-blue-200' : 'shadow-sm border-slate-200 hover:border-blue-300'}`}>
+                                    <div key={deal.id} className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'shadow-md border-brand-200' : 'shadow-sm border-slate-200 hover:border-brand-300'}`}>
                                         <div className="p-5 flex justify-between items-center cursor-pointer" onClick={() => toggleDetails(deal.id)}>
                                             <div className="flex items-start gap-4">
-                                                <div className={`mt-1 w-10 h-10 rounded-full flex items-center justify-center border ${deal.stage === DealStage.CONCLUIDO ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                                <div className={`mt-1 w-10 h-10 rounded-full flex items-center justify-center border ${deal.stage === DealStage.CONCLUIDO ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-brand-50 text-brand-600 border-brand-100'}`}>
                                                     {deal.stage === DealStage.CONCLUIDO ? <CheckCircle className="w-5 h-5"/> : <Clock className="w-5 h-5"/>}
                                                 </div>
                                                 <div>
@@ -393,25 +393,25 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
             </div>
             
             {user.role === UserRole.AGENTE_PRODUTIVO && (
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-3xl border border-blue-100">
-                    <h3 className="text-blue-900 font-bold text-sm mb-2 flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4 text-blue-600"/> Metas do Mês
+                <div className="bg-gradient-to-br from-brand-50 to-indigo-50 p-6 rounded-3xl border border-brand-100">
+                    <h3 className="text-brand-900 font-bold text-sm mb-2 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-brand-600"/> Metas do Mês
                     </h3>
-                    <p className="text-blue-700/80 text-xs mb-6 leading-relaxed">
-                        Mantenha o ritmo! Você precisa de mais <span className="font-bold text-blue-800">{15 - completedVisits} visitas</span> para atingir a meta operacional de campo.
+                    <p className="text-brand-700/80 text-xs mb-6 leading-relaxed">
+                        Mantenha o ritmo! Você precisa de mais <span className="font-bold text-brand-800">{15 - completedVisits} visitas</span> para atingir a meta operacional de campo.
                     </p>
                     
-                    <div className="flex justify-between text-xs font-bold text-blue-800 mb-1">
+                    <div className="flex justify-between text-xs font-bold text-brand-800 mb-1">
                         <span>Progresso</span>
                         <span>{Math.round((completedVisits/15)*100)}%</span>
                     </div>
-                    <div className="w-full bg-white h-3 rounded-full overflow-hidden border border-blue-100 shadow-inner">
+                    <div className="w-full bg-white h-3 rounded-full overflow-hidden border border-brand-100 shadow-inner">
                         <div 
-                            className="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-1000" 
+                            className="bg-gradient-to-r from-brand-500 to-indigo-600 h-full rounded-full transition-all duration-1000" 
                             style={{width: `${Math.min((completedVisits/15)*100, 100)}%`}}
                         ></div>
                     </div>
-                    <p className="text-right text-[10px] text-blue-500 mt-2 font-medium">Target: 15 visitas</p>
+                    <p className="text-right text-[10px] text-brand-500 mt-2 font-medium">Target: 15 visitas</p>
                 </div>
             )}
          </div>
@@ -424,7 +424,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
             <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-scale-in">
                 <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                        <Camera className="w-5 h-5 text-blue-600"/> Alterar Foto
+                        <Camera className="w-5 h-5 text-brand-600"/> Alterar Foto
                     </h3>
                     <button onClick={() => setIsEditingAvatar(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                         <X className="w-5 h-5" />
@@ -443,7 +443,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
                         <div className="flex gap-2">
                             <input 
                                 type="text" 
-                                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none text-sm"
                                 placeholder="https://..."
                                 value={newAvatarUrl}
                                 onChange={e => setNewAvatarUrl(e.target.value)}
@@ -462,7 +462,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
                     <button 
                         onClick={handleSaveAvatar}
                         disabled={!newAvatarUrl}
-                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-xl shadow-md shadow-blue-200 transition-all flex justify-center items-center gap-2"
+                        className="w-full py-3 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-bold rounded-xl shadow-md shadow-brand-200 transition-all flex justify-center items-center gap-2"
                     >
                         <Check className="w-4 h-4" /> Salvar Nova Foto
                     </button>

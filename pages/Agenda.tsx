@@ -7,11 +7,12 @@ interface AgendaProps {
   contacts: Contact[];
   users: User[];
   onAddAppointment: (appointment: Appointment) => void;
+  currentUser?: User; // Added currentUser prop to check permissions inside component if needed
 }
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, onAddAppointment }) => {
+export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, onAddAppointment, currentUser }) => {
   const [showModal, setShowModal] = useState(false);
   
   // Calendar Navigation State
@@ -24,6 +25,9 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
     time: '09:00',
     assigneeId: ''
   });
+
+  // Check if current user can create appointments
+  const canCreateAppointment = currentUser ? [UserRole.COORD_GERAL, UserRole.AGENTE_PRODUTIVO, UserRole.AUX_ADMIN].includes(currentUser.role) : false;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,30 +110,32 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
       {/* LEFT: Calendar View */}
       <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="shrink-0 px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <div className="flex items-center gap-3">
                 <div className="flex gap-0.5 bg-white border border-slate-200 rounded-md shadow-sm">
-                    <button onClick={handlePrevMonth} className="p-1 hover:bg-slate-50 rounded-l text-slate-500 hover:text-blue-600 transition-colors"><ChevronLeft className="w-4 h-4"/></button>
+                    <button onClick={handlePrevMonth} className="p-1 hover:bg-slate-50 rounded-l text-slate-500 hover:text-brand-600 transition-colors"><ChevronLeft className="w-4 h-4"/></button>
                     <div className="w-px bg-slate-100 my-1"></div>
-                    <button onClick={handleNextMonth} className="p-1 hover:bg-slate-50 rounded-r text-slate-500 hover:text-blue-600 transition-colors"><ChevronRight className="w-4 h-4"/></button>
+                    <button onClick={handleNextMonth} className="p-1 hover:bg-slate-50 rounded-r text-slate-500 hover:text-brand-600 transition-colors"><ChevronRight className="w-4 h-4"/></button>
                 </div>
                 <h2 className="text-lg font-bold text-slate-700 capitalize flex items-center gap-2">
                     {monthName}
                 </h2>
             </div>
-            <button 
-                onClick={() => {
-                    setFormData(prev => ({...prev, date: selectedDateStr}));
-                    setShowModal(true);
-                }}
-                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:shadow-md shadow-sm"
-            >
-                <Plus className="w-3.5 h-3.5" /> Novo Agendamento
-            </button>
+            {canCreateAppointment && (
+                <button 
+                    onClick={() => {
+                        setFormData(prev => ({...prev, date: selectedDateStr}));
+                        setShowModal(true);
+                    }}
+                    className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:shadow-md shadow-sm"
+                >
+                    <Plus className="w-3.5 h-3.5" /> Novo Agendamento
+                </button>
+            )}
         </div>
 
         {/* Grid */}
-        <div className="flex-1 p-5">
+        <div className="flex-1 p-5 overflow-y-auto">
             <div className="grid grid-cols-7 mb-2">
                 {WEEKDAYS.map(day => (
                     <div key={day} className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-2">
@@ -137,9 +143,9 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                     </div>
                 ))}
             </div>
-            <div className="grid grid-cols-7 gap-1.5 h-full auto-rows-fr">
+            <div className="grid grid-cols-7 gap-1.5 min-h-0">
                 {Array.from({ length: firstDay }).map((_, i) => (
-                    <div key={`empty-${i}`} className="min-h-[90px] bg-slate-50/30 rounded-lg border border-transparent"></div>
+                    <div key={`empty-${i}`} className="min-h-[100px] bg-slate-50/30 rounded-lg border border-transparent"></div>
                 ))}
                 
                 {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -157,20 +163,20 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                         <div 
                             key={day}
                             onClick={() => handleDayClick(day)}
-                            className={`min-h-[90px] border rounded-lg p-1.5 cursor-pointer transition-all hover:shadow-md relative group flex flex-col ${
-                                isSelected ? 'border-blue-400 ring-1 ring-blue-400 bg-blue-50/20' : 
-                                isToday ? 'border-blue-200 bg-blue-50/5' : 'border-slate-100 hover:border-blue-200'
+                            className={`min-h-[100px] border rounded-lg p-1.5 cursor-pointer transition-all hover:shadow-md relative group flex flex-col ${
+                                isSelected ? 'border-brand-400 ring-1 ring-brand-400 bg-brand-50/20' : 
+                                isToday ? 'border-brand-200 bg-brand-50/5' : 'border-slate-100 hover:border-brand-200'
                             }`}
                         >
                             <div className="flex justify-between items-start mb-1">
-                                <span className={`text-xs font-medium w-5 h-5 flex items-center justify-center rounded-full ${isToday ? 'bg-blue-600 text-white font-bold' : 'text-slate-500'}`}>
+                                <span className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-brand-600 text-white font-bold' : 'text-slate-500'}`}>
                                     {day}
                                 </span>
                             </div>
                             
                             <div className="flex-1 flex flex-col gap-1 overflow-hidden">
                                 {visibleApps.map(app => (
-                                    <div key={app.id} className="text-[9px] truncate px-1.5 py-0.5 rounded bg-white border border-slate-100 text-slate-600 shadow-sm group-hover:border-blue-100 block w-full leading-tight">
+                                    <div key={app.id} className="text-[9px] truncate px-1.5 py-0.5 rounded bg-white border border-slate-100 text-slate-600 shadow-sm group-hover:border-brand-100 block w-full leading-tight">
                                         <span className="font-bold mr-1 text-slate-400">{app.time}</span>
                                         {app.title}
                                     </div>
@@ -194,14 +200,14 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
             <div className="p-4 border-b border-slate-100 bg-slate-50 rounded-t-xl flex justify-between items-center">
                 <div>
                     <h3 className="font-bold text-slate-700 flex items-center gap-2 text-sm">
-                        <Clock className="w-4 h-4 text-blue-600" />
+                        <Clock className="w-4 h-4 text-brand-600" />
                         Agenda do Dia
                     </h3>
                     <p className="text-xs text-slate-400 mt-0.5 capitalize">
                         {selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' })}
                     </p>
                 </div>
-                <div className="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                <div className="text-xs font-bold bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full">
                     {dailyAppointments.length}
                 </div>
             </div>
@@ -211,15 +217,17 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                     <div className="text-center py-10 opacity-50 flex flex-col items-center justify-center h-full">
                         <Briefcase className="w-10 h-10 mb-2 text-slate-300"/>
                         <p className="text-xs text-slate-500">Livre para agendamentos.</p>
-                        <button 
-                            onClick={() => {
-                                setFormData(prev => ({...prev, date: selectedDateStr}));
-                                setShowModal(true);
-                            }}
-                            className="mt-3 text-blue-600 text-xs font-bold hover:underline"
-                        >
-                            + Adicionar
-                        </button>
+                        {canCreateAppointment && (
+                            <button 
+                                onClick={() => {
+                                    setFormData(prev => ({...prev, date: selectedDateStr}));
+                                    setShowModal(true);
+                                }}
+                                className="mt-3 text-brand-600 text-xs font-bold hover:underline"
+                            >
+                                + Adicionar
+                            </button>
+                        )}
                     </div>
                 ) : (
                     dailyAppointments.map(apt => {
@@ -227,7 +235,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                         const assignee = users.find(u => u.id === apt.assigneeId);
                         
                         return (
-                            <div key={apt.id} className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all group relative overflow-hidden">
+                            <div key={apt.id} className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm hover:shadow-md hover:border-brand-300 transition-all group relative overflow-hidden">
                                 <div className={`absolute left-0 top-0 bottom-0 w-1 ${apt.type === AppointmentType.VISITA ? 'bg-blue-500' : apt.type === AppointmentType.REUNIAO ? 'bg-purple-500' : 'bg-green-500'}`}></div>
                                 
                                 <div className="flex justify-between items-start mb-2 pl-2">
@@ -280,7 +288,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                 <input 
                   type="text" 
                   required
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm"
                   placeholder="Ex: Visita de Diagnóstico"
                   value={formData.title || ''}
                   onChange={e => setFormData({...formData, title: e.target.value})}
@@ -293,7 +301,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                     <input 
                     type="date" 
                     required
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm"
                     value={formData.date || ''}
                     onChange={e => setFormData({...formData, date: e.target.value})}
                     />
@@ -303,7 +311,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                     <input 
                     type="time" 
                     required
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm"
                     value={formData.time || ''}
                     onChange={e => setFormData({...formData, time: e.target.value})}
                     />
@@ -314,7 +322,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                 <div>
                     <label className="block text-xs font-medium text-slate-600 mb-1">Tipo</label>
                     <select 
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm"
                     value={formData.type}
                     onChange={e => setFormData({...formData, type: e.target.value as AppointmentType})}
                     >
@@ -327,7 +335,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                     <label className="block text-xs font-medium text-slate-600 mb-1">Beneficiário</label>
                     <select 
                     required
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all text-sm"
                     value={formData.contactId || ''}
                     onChange={e => setFormData({...formData, contactId: e.target.value})}
                     >
@@ -344,7 +352,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                  <div className="relative">
                      <UserIcon className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                      <select 
-                        className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none text-sm"
+                        className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all appearance-none text-sm"
                         value={formData.assigneeId || ''}
                         onChange={e => setFormData({...formData, assigneeId: e.target.value})}
                      >
@@ -359,7 +367,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">Observações</label>
                 <textarea 
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all h-20 resize-none text-sm"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all h-20 resize-none text-sm"
                   placeholder="Detalhes adicionais..."
                   value={formData.notes || ''}
                   onChange={e => setFormData({...formData, notes: e.target.value})}
@@ -369,7 +377,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
               <div className="pt-2">
                 <button 
                   type="submit" 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg shadow-sm flex justify-center items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] text-sm"
+                  className="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2 rounded-lg shadow-sm flex justify-center items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] text-sm"
                 >
                   <Check className="w-4 h-4" /> Confirmar e Sincronizar Fomento
                 </button>

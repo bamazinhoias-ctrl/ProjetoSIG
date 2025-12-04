@@ -10,12 +10,12 @@ export const EVE: React.FC = () => {
         <div className="flex justify-between items-start">
             <div>
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <ClipboardList className="w-6 h-6 text-emerald-600" />
+                <ClipboardList className="w-6 h-6 text-brand-600" />
                 Estudo de Viabilidade Econômica (EVE)
             </h2>
             <p className="text-sm text-slate-500 mt-1">Ferramenta técnica para análise de empreendimentos solidários.</p>
             </div>
-            <div className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-100">
+            <div className="bg-brand-50 text-brand-700 px-3 py-1 rounded-full text-xs font-bold border border-brand-100">
                 Fase de Diagnóstico
             </div>
         </div>
@@ -31,8 +31,8 @@ export const EVE: React.FC = () => {
                     onClick={() => setActiveStep(step)}
                     className={`w-full text-left p-4 rounded-xl border transition-all flex items-center gap-3 ${
                         activeStep === step 
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' 
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50'
+                        ? 'bg-brand-600 text-white border-brand-600 shadow-md' 
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-brand-300 hover:bg-brand-50'
                     }`}
                 >
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
@@ -46,7 +46,7 @@ export const EVE: React.FC = () => {
                              step === 2 ? 'Custos & Insumos' : 
                              step === 3 ? 'Precificação' : 'Análise Final'}
                         </span>
-                        <span className={`text-xs ${activeStep === step ? 'text-emerald-100' : 'text-slate-400'}`}>
+                        <span className={`text-xs ${activeStep === step ? 'text-brand-100' : 'text-slate-400'}`}>
                              {step === 1 ? 'Capacidade instalada' : 
                              step === 2 ? 'Matéria-prima e fixos' : 
                              step === 3 ? 'Markup e Venda' : 'Parecer Técnico'}
@@ -116,7 +116,7 @@ export const EVE: React.FC = () => {
                             <input type="number" className="col-span-3 px-2 py-1.5 border border-slate-300 rounded text-sm" placeholder="0.00"/>
                             <span className="col-span-3 text-right font-bold text-slate-700">R$ 0,00</span>
                         </div>
-                        <button className="text-xs text-blue-600 hover:underline">+ Adicionar Insumo</button>
+                        <button className="text-xs text-brand-600 hover:underline">+ Adicionar Insumo</button>
                     </div>
 
                     <div className="border-t border-slate-100 pt-4">
@@ -144,9 +144,9 @@ export const EVE: React.FC = () => {
                             <p className="text-xs text-slate-500 mb-1">Custo Total Unitário</p>
                             <p className="text-2xl font-bold text-slate-800">R$ 12,50</p>
                         </div>
-                        <div className="bg-white p-4 rounded-xl border border-blue-200 text-center shadow-sm">
-                            <label className="text-xs text-blue-600 font-bold mb-1 block uppercase">Margem de Lucro (%)</label>
-                            <input type="number" className="w-20 mx-auto text-center font-bold text-xl border-b-2 border-blue-200 focus:border-blue-500 outline-none text-blue-800" defaultValue={30} />
+                        <div className="bg-white p-4 rounded-xl border border-brand-200 text-center shadow-sm">
+                            <label className="text-xs text-brand-600 font-bold mb-1 block uppercase">Margem de Lucro (%)</label>
+                            <input type="number" className="w-20 mx-auto text-center font-bold text-xl border-b-2 border-brand-200 focus:border-brand-500 outline-none text-brand-800" defaultValue={30} />
                         </div>
                         <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 text-center">
                             <p className="text-xs text-emerald-600 mb-1 font-bold uppercase">Preço de Venda</p>
@@ -203,12 +203,12 @@ export const EVE: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-2 mt-2">
-                            <input type="checkbox" id="notify" className="rounded text-blue-600 focus:ring-blue-500"/>
+                            <input type="checkbox" id="notify" className="rounded text-brand-600 focus:ring-brand-500"/>
                             <label htmlFor="notify" className="text-xs text-slate-600">Notificar Coordenação Geral automaticamente</label>
                         </div>
                      </div>
 
-                     <button className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-colors flex justify-center items-center gap-2">
+                     <button className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-md transition-colors flex justify-center items-center gap-2">
                         <FileCheck className="w-5 h-5"/> Finalizar Estudo EVE
                      </button>
                 </div>

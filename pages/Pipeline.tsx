@@ -88,10 +88,10 @@ export const Pipeline: React.FC<PipelineProps> = ({ deals, contacts, users, curr
   // Visual helper for Stage Environment
   const getStageEnvironment = (stage: DealStage) => {
     switch (stage) {
-        case DealStage.AGENDAMENTO: return { icon: <Monitor className="w-3 h-3"/>, label: 'Coordenação', color: 'text-blue-500' };
+        case DealStage.AGENDAMENTO: return { icon: <Monitor className="w-3 h-3"/>, label: 'Coordenação', color: 'text-brand-500' };
         case DealStage.COLETA_EVE: 
         case DealStage.COLETA_CAD: return { icon: <Tablet className="w-3 h-3"/>, label: 'Tablet (Campo)', color: 'text-amber-600' };
-        case DealStage.PLANO_ACAO: return { icon: <Monitor className="w-3 h-3"/>, label: 'Escritório', color: 'text-blue-500' };
+        case DealStage.PLANO_ACAO: return { icon: <Monitor className="w-3 h-3"/>, label: 'Escritório', color: 'text-brand-500' };
         case DealStage.APROVACAO: return { icon: <Lock className="w-3 h-3"/>, label: 'Gestão', color: 'text-purple-500' };
         default: return { icon: <CheckCircle className="w-3 h-3"/>, label: 'Arquivo', color: 'text-green-500' };
     }
@@ -107,7 +107,7 @@ export const Pipeline: React.FC<PipelineProps> = ({ deals, contacts, users, curr
     <div className="h-full flex flex-col animate-fade-in">
       <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex gap-2">
-            <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+            <button className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
             <Plus className="w-4 h-4" /> Nova Visita
             </button>
             <button 
@@ -130,7 +130,7 @@ export const Pipeline: React.FC<PipelineProps> = ({ deals, contacts, users, curr
                 </button>
                 <button 
                     onClick={() => setFilterMode('mine')}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md flex items-center gap-2 transition-all ${filterMode === 'mine' ? 'bg-blue-50 text-blue-700' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md flex items-center gap-2 transition-all ${filterMode === 'mine' ? 'bg-brand-50 text-brand-700' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                     <Filter className="w-3 h-3" /> Meus Atendimentos
                 </button>
@@ -140,7 +140,7 @@ export const Pipeline: React.FC<PipelineProps> = ({ deals, contacts, users, curr
             <div className="hidden lg:flex gap-4 text-xs font-medium text-slate-500 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
                 <div className="flex items-center gap-1.5"><Tablet className="w-4 h-4 text-amber-500"/> Offline (Tablet)</div>
                 <div className="w-px h-4 bg-slate-200"></div>
-                <div className="flex items-center gap-1.5"><Monitor className="w-4 h-4 text-blue-500"/> Online (Web)</div>
+                <div className="flex items-center gap-1.5"><Monitor className="w-4 h-4 text-brand-500"/> Online (Web)</div>
             </div>
         </div>
       </div>
@@ -169,7 +169,7 @@ export const Pipeline: React.FC<PipelineProps> = ({ deals, contacts, users, curr
             <div 
               key={stage} 
               className={`min-w-[320px] w-[320px] flex flex-col rounded-xl max-h-full transition-all duration-300 ${
-                isDragOver ? 'bg-blue-50 ring-2 ring-blue-300 scale-[1.01]' : 'bg-slate-100'
+                isDragOver ? 'bg-brand-50 ring-2 ring-brand-300 scale-[1.01]' : 'bg-slate-100'
               }`}
               onDragOver={(e) => handleDragOver(e, stage)}
               onDragLeave={handleDragLeave}
@@ -188,7 +188,7 @@ export const Pipeline: React.FC<PipelineProps> = ({ deals, contacts, users, curr
                 {/* Visual Progress Bar for Column Load */}
                 <div className="w-full bg-slate-200 h-1 mt-3 rounded-full overflow-hidden">
                     <div 
-                        className={`h-full rounded-full ${isTablet ? 'bg-amber-400' : 'bg-blue-400'}`} 
+                        className={`h-full rounded-full ${isTablet ? 'bg-amber-400' : 'bg-brand-400'}`} 
                         style={{ width: `${Math.min((stageDeals.length / 10) * 100, 100)}%` }}
                     ></div>
                 </div>
@@ -219,7 +219,7 @@ export const Pipeline: React.FC<PipelineProps> = ({ deals, contacts, users, curr
                 )}
                 
                 {isDragOver && (
-                   <div className="h-32 flex items-center justify-center border-2 border-dashed border-blue-400 bg-blue-50 rounded-xl text-blue-600 text-sm font-bold animate-pulse pointer-events-none">
+                   <div className="h-32 flex items-center justify-center border-2 border-dashed border-brand-400 bg-brand-50 rounded-xl text-brand-600 text-sm font-bold animate-pulse pointer-events-none">
                        Soltar aqui
                    </div>
                 )}
