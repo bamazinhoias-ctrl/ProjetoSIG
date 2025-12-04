@@ -1,0 +1,5 @@
+{
+  "name": "SIG-CESOL",
+  "description": "Sistema Integrado de Gestão - Multi-Tenant Management Platform for CESOL involving Field Operations, Commercial, and Administrative modules.",
+  "requestFramePermissions": []
+}
