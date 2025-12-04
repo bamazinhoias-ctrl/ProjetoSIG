@@ -42,7 +42,8 @@ export const Login: React.FC<LoginProps> = ({ users, onLogin, cesolName }) => {
         
         {/* Header / Brand */}
         <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500"></div>
+          {/* New Brand Gradient Line */}
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-600 via-brand-400 to-brand-600"></div>
           <div className="flex justify-center mb-4 relative z-10">
             <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/20">
               <Layers className="w-8 h-8 text-white" />
@@ -51,9 +52,9 @@ export const Login: React.FC<LoginProps> = ({ users, onLogin, cesolName }) => {
           <h1 className="text-2xl font-bold text-white tracking-tight relative z-10">SIG-CESOL</h1>
           <p className="text-slate-400 text-sm mt-2 relative z-10 font-medium">{cesolName}</p>
           
-          {/* Decorative circles */}
-          <div className="absolute -top-12 -left-12 w-32 h-32 bg-blue-600/20 rounded-full blur-2xl"></div>
-          <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-purple-600/20 rounded-full blur-2xl"></div>
+          {/* Decorative circles updated to warm tones */}
+          <div className="absolute -top-12 -left-12 w-32 h-32 bg-brand-600/20 rounded-full blur-2xl"></div>
+          <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-brand-400/20 rounded-full blur-2xl"></div>
         </div>
 
         {/* Form */}
@@ -68,13 +69,13 @@ export const Login: React.FC<LoginProps> = ({ users, onLogin, cesolName }) => {
               <label className="text-xs font-medium text-slate-700 uppercase tracking-wide">Email Corporativo</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-brand-600 transition-colors" />
                 </div>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all outline-none"
+                  className="block w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-all outline-none"
                   placeholder="usuario@cesol.ba.gov.br"
                 />
               </div>
@@ -84,13 +85,13 @@ export const Login: React.FC<LoginProps> = ({ users, onLogin, cesolName }) => {
               <label className="text-xs font-medium text-slate-700 uppercase tracking-wide">Senha</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-brand-600 transition-colors" />
                 </div>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all outline-none"
+                  className="block w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-all outline-none"
                   placeholder="••••••••"
                 />
               </div>
@@ -106,7 +107,7 @@ export const Login: React.FC<LoginProps> = ({ users, onLogin, cesolName }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
             >
               {loading ? (
                 <>

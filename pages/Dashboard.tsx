@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Deal, DealStage, User, UserRole } from '../types';
-import { Calendar, Tablet, FileText, CheckCircle2, UserCheck, LayoutDashboard } from 'lucide-react';
+import { Calendar, Tablet, FileText, CheckCircle2, UserCheck, LayoutDashboard, Briefcase } from 'lucide-react';
 
 interface DashboardProps {
   deals: Deal[];
@@ -15,6 +15,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, user
   
   // Filter deals based on role: Managers see all, ASPs see only theirs
   const relevantDeals = isManager ? deals : deals.filter(d => d.assigneeId === currentUser.id);
+
+  // Calculate Unique Contacts for the current user view
+  // If Manager: Show Total Contacts passed from App
+  // If ASP: Calculate how many unique contactIds exist in their assigned deals
+  const myEmpreendimentosCount = useMemo(() => {
+    if (isManager) return totalContacts;
+    const uniqueIds = new Set(relevantDeals.map(d => d.contactId));
+    return uniqueIds.size;
+  }, [isManager, totalContacts, relevantDeals]);
 
   const stats = useMemo(() => {
     // Chart data: Value by Stage
@@ -37,6 +46,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, user
 
   // Card Configuration
   const cards = [
+    { 
+      id: 'empreendimentos',
+      label: isManager ? 'Base de Empreendimentos' : 'Meus Empreendimentos', 
+      count: myEmpreendimentosCount, 
+      icon: Briefcase, 
+      color: 'bg-slate-100 text-slate-600 border-slate-200' 
+    },
     { 
       id: 'agendamento',
       label: 'Agendamentos', 
@@ -75,7 +91,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, user
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       
       {/* Top Section: Kanban Stage Stats (Individualized) */}
       <div>
@@ -84,7 +100,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, user
             {isManager ? 'Visão Global de Produção' : 'Minhas Etapas de Atendimento'}
         </h2>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* Adjusted grid columns to accommodate the new card (6 cards total) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             {cards.map((card, index) => (
                 <div 
                     key={card.id} 
@@ -97,7 +114,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, user
                         </div>
                         <span className="text-2xl font-bold text-slate-900">{card.count}</span>
                     </div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{card.label}</p>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide truncate" title={card.label}>{card.label}</p>
                 </div>
             ))}
         </div>

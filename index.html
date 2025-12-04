@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SIG-CESOL | Gestão Integrada</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                750: '#2d3748',
+                850: '#1a202c',
+                950: '#0f172a',
+              },
+              // Paleta baseada na imagem solicitada (Laranja -> Amarelo -> Creme)
+              brand: {
+                50: '#FFFEF0', // Creme/Branco (Bottom Right)
+                100: '#FFF9C4', // Amarelo Pálido (Bottom Mid-Right)
+                200: '#FEF08A', // Amarelo Claro (Bottom Mid-Left)
+                300: '#FDE047', // Amarelo Brilhante (Bottom Left)
+                400: '#FACC15', // Amarelo Ouro (Top Right)
+                500: '#F59E0B', // Dourado/Âmbar (Top Mid-Right)
+                600: '#F97316', // Laranja Vibrante (Top Mid-Left)
+                700: '#EA580C', // Laranja Escuro (Top Left)
+                800: '#C2410C', // Tom de contraste
+                900: '#9A3412', // Tom de contraste escuro
+              }
+            }
+          }
+        }
+      }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
       body {

@@ -165,6 +165,33 @@ export default function App() {
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
   const [cesolName, setCesolName] = useState('CESOL - Centro Público');
   
+  // Theme Management
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    // Check local storage or system preference
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme === 'dark') {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
+  
   const [view, setView] = useState<View>('dashboard');
   const [contacts, setContacts] = useState<Contact[]>(INITIAL_CONTACTS);
   const [deals, setDeals] = useState<Deal[]>(INITIAL_DEALS);
@@ -299,6 +326,8 @@ export default function App() {
       onLogout={handleLogout} 
       currentUser={currentUser}
       cesolName={cesolName}
+      isDarkMode={isDarkMode}
+      onToggleTheme={toggleTheme}
     >
       {view === 'dashboard' && (
         <Dashboard 
