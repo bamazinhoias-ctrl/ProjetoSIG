@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Kanban, ShoppingBag, Settings, Layers, Briefcase, LogOut, Calendar, Users, ChevronLeft, ChevronRight, Menu, Moon, Sun, FileText, ClipboardList, Database } from 'lucide-react';
+import { LayoutDashboard, Kanban, ShoppingBag, Settings, Layers, Briefcase, LogOut, Calendar, Users, ChevronLeft, ChevronRight, Menu, Moon, Sun, FileText, ClipboardList, Database, ChevronDown } from 'lucide-react';
 import { View, User, UserRole } from '../types';
 
 interface LayoutProps {
@@ -279,54 +279,65 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-slate-950 relative transition-colors duration-300">
-        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 py-5 sticky top-0 z-10 flex justify-between items-center shadow-sm transition-colors duration-300">
-          <div className="flex items-center gap-4">
-            {/* Mobile Menu Trigger */}
-            <Menu className="w-6 h-6 text-slate-400 lg:hidden" />
+      {/* Main Content Area - Modified for Auto-Hide Header */}
+      <main className="flex-1 relative flex flex-col h-screen overflow-hidden bg-slate-50/50 dark:bg-slate-950 transition-colors duration-300">
+        
+        {/* Floating/Hiding Header Container */}
+        <div className="absolute top-0 left-0 right-0 z-40 transition-transform duration-300 ease-in-out transform -translate-y-[calc(100%-8px)] hover:translate-y-0 group">
+          <header className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 py-4 flex justify-between items-center shadow-lg transition-colors duration-300">
+            <div className="flex items-center gap-4">
+              {/* Mobile Menu Trigger */}
+              <Menu className="w-6 h-6 text-slate-400 lg:hidden" />
+              
+              {/* Modern Header Titles */}
+              <div className="flex flex-col">
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-0.5 animate-fade-in">
+                      {getContextLabel(currentView)}
+                  </span>
+                  <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 capitalize tracking-tight transition-colors leading-none">
+                  {currentView === 'fomento' ? 'Fomento' : 
+                  currentView === 'cadcidadao' ? 'CadCidadão' :
+                  currentView === 'eve' ? 'Estudo de Viabilidade (EVE)' :
+                  currentView === 'comercial' ? 'Comercial' :
+                  currentView === 'admin' ? 'Administrativo' :
+                  currentView === 'agenda' ? 'Agenda' :
+                  currentView === 'users' ? 'Gestão de Equipe & RH' :
+                  currentView === 'empreendimentos' ? 'Gestão de Empreendimentos' :
+                  currentView === 'settings' ? 'Perfil' :
+                  'Dashboard'}
+                  </h1>
+              </div>
+            </div>
             
-            {/* Modern Header Titles */}
-            <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-0.5 animate-fade-in">
-                    {getContextLabel(currentView)}
-                </span>
-                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 capitalize tracking-tight transition-colors leading-none">
-                {currentView === 'fomento' ? 'Fomento' : 
-                currentView === 'cadcidadao' ? 'CadCidadão' :
-                currentView === 'eve' ? 'Estudo de Viabilidade (EVE)' :
-                currentView === 'comercial' ? 'Comercial' :
-                currentView === 'admin' ? 'Administrativo' :
-                currentView === 'agenda' ? 'Agenda' :
-                currentView === 'users' ? 'Gestão de Equipe & RH' :
-                currentView === 'empreendimentos' ? 'Gestão de Empreendimentos' :
-                currentView === 'settings' ? 'Perfil' :
-                'Dashboard'}
-                </h1>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-4">
-             {/* Dark Mode Toggle */}
-             <button 
-                onClick={onToggleTheme}
-                className="p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title={isDarkMode ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
-             >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-             </button>
+            <div className="flex items-center gap-4">
+              {/* Dark Mode Toggle */}
+              <button 
+                  onClick={onToggleTheme}
+                  className="p-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  title={isDarkMode ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
+              >
+                  {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
 
-             <div className="hidden md:flex flex-col items-end mr-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Unidade Operacional</span>
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors">{cesolName}</span>
-             </div>
-             <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 transition-colors shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/40"></span>
-                Online
+              <div className="hidden md:flex flex-col items-end mr-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Unidade Operacional</span>
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors">{cesolName}</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 transition-colors shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/40"></span>
+                  Online
+              </div>
             </div>
+          </header>
+          
+          {/* Hover Trigger Bar (The "Lip") */}
+          <div className="h-2 w-full bg-gradient-to-r from-transparent via-brand-500/30 to-transparent cursor-pointer flex justify-center items-start opacity-70 group-hover:opacity-0 transition-opacity">
+               <ChevronDown className="w-3 h-3 text-brand-600 animate-bounce mt-[-2px]" />
           </div>
-        </header>
-        <div className="p-8">
+        </div>
+
+        {/* Scrollable Content Container */}
+        <div className="flex-1 overflow-y-auto p-8 pt-4 pb-20 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
           {children}
         </div>
       </main>

@@ -238,15 +238,14 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
         </div>
       </div>
 
-      {/* Main Registration Modal - Optimized for Fit */}
+      {/* Main Registration Modal - Fix for layout issues */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
             <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)} />
-            {/* Height locked to 90vh, Flex Col ensures footer is always visible */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden animate-scale-in">
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-scale-in border border-slate-200">
                 
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                <div className="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                     <div>
                         <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
                             <Building2 className="w-5 h-5 text-brand-600"/> 
@@ -254,17 +253,17 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                         </h3>
                         <p className="text-xs text-slate-500">Preencha os dados abaixo</p>
                     </div>
-                    <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm">
+                    <button onClick={() => setIsModalOpen(false)} className="p-1.5 bg-white rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto p-6 bg-slate-50/30">
+                <div className="flex-1 overflow-y-auto p-5 bg-slate-50/30">
                     <form id="enterpriseForm" onSubmit={handleSubmitContact} className="space-y-4">
                         
                         {/* Row 1: Enterprise Main Data */}
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
                             <h4 className="text-xs font-bold text-brand-700 uppercase tracking-wide mb-3 flex items-center gap-2">
                                 <Map className="w-4 h-4"/> Dados do Empreendimento
@@ -311,7 +310,7 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             
                             {/* Productive Data */}
-                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
                                 <h4 className="text-xs font-bold text-indigo-700 uppercase tracking-wide mb-3 flex items-center gap-2">
                                     <LayoutGrid className="w-4 h-4"/> Dados Produtivos
@@ -350,7 +349,7 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                             </div>
 
                             {/* Representative */}
-                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
                                 <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-3 flex items-center gap-2">
                                     <UserIcon className="w-4 h-4"/> Representante
@@ -383,7 +382,7 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                         </div>
 
                         {/* Internal Control (Compact) */}
-                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
                             <div className="flex items-center gap-2 text-slate-500">
                                 <ClipboardList className="w-4 h-4"/>
                                 <span className="text-xs font-bold uppercase">Controle Interno</span>
@@ -417,14 +416,14 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                 </div>
 
                 {/* Footer Actions */}
-                <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 flex justify-between items-center">
+                <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 shrink-0 flex justify-between items-center">
                     <button onClick={() => setIsModalOpen(false)} className="text-sm font-bold text-slate-500 hover:text-slate-700 px-4 py-2">
                         Cancelar
                     </button>
                     <button 
                         type="submit" 
                         form="enterpriseForm"
-                        className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-lg shadow-brand-200 flex items-center gap-2 transform active:scale-95 transition-all text-sm"
+                        className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg shadow-brand-200 flex items-center gap-2 transform active:scale-95 transition-all text-sm"
                     >
                         <Save className="w-4 h-4"/> {editingId ? 'Atualizar' : 'Salvar Cadastro'}
                     </button>
