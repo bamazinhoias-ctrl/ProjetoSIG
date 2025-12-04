@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Deal, Contact, UserRole, DealStage } from '../types';
-import { Mail, Shield, Briefcase, MapPin, CheckCircle, Clock, AlertCircle, ChevronDown, ChevronUp, FileText, Camera, X, Check, RefreshCw, FileCheck, ClipboardCheck } from 'lucide-react';
+import { Mail, Shield, Briefcase, MapPin, CheckCircle, Clock, AlertCircle, ChevronDown, ChevronUp, FileText, Camera, X, Check, RefreshCw, FileCheck, ClipboardCheck, TrendingUp, DollarSign, ShoppingBag, BarChart3 } from 'lucide-react';
 
 interface ProfileProps {
   user: User;
@@ -20,6 +20,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
   // --- Logic for Data Display ---
   const isManager = user.role === UserRole.PRESIDENTE || user.role === UserRole.COORD_GERAL;
   const isASP = user.role === UserRole.AGENTE_PRODUTIVO;
+  const isSalesAgent = user.role === UserRole.AGENTE_VENDA;
 
   // 1. Activity List (Timeline): Always shows what is assigned specifically to this user
   const myDeals = deals.filter(d => d.assigneeId === user.id);
@@ -35,13 +36,11 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
     : new Set(myDeals.map(d => d.contactId)).size;
 
   // ASP Specific Calculations
-  // "EVEs Prontos": Deals that are EVE/Diagnostic and are either Concluded or in Approval (ASP finished their part)
   const aspEvesProntos = myDeals.filter(d => 
     (d.title.toLowerCase().includes('eve') || d.title.toLowerCase().includes('diagnóstico') || d.id.includes('EVE')) && 
     (d.stage === DealStage.CONCLUIDO || d.stage === DealStage.APROVACAO)
   ).length;
 
-  // "Planos Prontos": Deals that are Plans and are Concluded or in Approval
   const aspPlanosProntos = myDeals.filter(d => 
     (d.title.toLowerCase().includes('plano') || d.title.toLowerCase().includes('ação')) && 
     (d.stage === DealStage.CONCLUIDO || d.stage === DealStage.APROVACAO)
@@ -114,171 +113,254 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
         </div>
 
         {/* Stats Cards Section */}
-        <div className={`grid grid-cols-1 md:grid-cols-2 ${isASP ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 mt-8 pt-8 border-t border-slate-100`}>
-            
-            {/* Metric 1: Empreendimentos */}
-            <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-slate-100">
-                        <Briefcase className="w-5 h-5" />
+        {isSalesAgent ? (
+             /* SALES AGENT DASHBOARD */
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8 pt-8 border-t border-slate-100">
+                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white text-emerald-600 rounded-lg shadow-sm">
+                            <DollarSign className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-emerald-800 font-bold uppercase">Vendas Hoje</p>
+                            <p className="text-xl font-bold text-emerald-900">R$ 1.250,00</p>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-xs text-slate-500 font-medium">
-                            {isManager ? 'Total de Empreendimentos' : isASP ? 'Empreendimentos Atendidos' : 'Meus Empreendimentos'}
-                        </p>
-                        <p className="text-xl font-bold text-slate-900">{uniqueEmpreendimentos}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-blue-50 border border-blue-100">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white text-blue-600 rounded-lg shadow-sm">
+                            <ShoppingBag className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-blue-800 font-bold uppercase">Ticket Médio</p>
+                            <p className="text-xl font-bold text-blue-900">R$ 45,90</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-4 rounded-xl bg-purple-50 border border-purple-100">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white text-purple-600 rounded-lg shadow-sm">
+                            <BarChart3 className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-purple-800 font-bold uppercase">Meta Mensal</p>
+                            <p className="text-xl font-bold text-purple-900">65%</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white text-amber-600 rounded-lg shadow-sm">
+                            <TrendingUp className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-amber-800 font-bold uppercase">Top Produto</p>
+                            <p className="text-sm font-bold text-amber-900 truncate">Mel Orgânico</p>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            {/* Metric 2 & 3: Role Specific */}
-            {isASP ? (
-                <>
-                    {/* ASP Metric: EVEs Prontos */}
-                    <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-200 transition-colors">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white text-indigo-600 rounded-lg shadow-sm border border-slate-100">
-                                <FileCheck className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500 font-medium">EVEs Prontos</p>
-                                <p className="text-xl font-bold text-slate-900">{aspEvesProntos}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* ASP Metric: Planos Prontos */}
-                    <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-emerald-200 transition-colors">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white text-emerald-600 rounded-lg shadow-sm border border-slate-100">
-                                <ClipboardCheck className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500 font-medium">Planos de Ação Prontos</p>
-                                <p className="text-xl font-bold text-slate-900">{aspPlanosProntos}</p>
-                            </div>
-                        </div>
-                    </div>
-                </>
-            ) : (
-               /* Default Metric: Concluded */
-               <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-emerald-200 transition-colors">
+        ) : (
+             /* STANDARD DASHBOARD (Operations/Management) */
+            <div className={`grid grid-cols-1 md:grid-cols-2 ${isASP ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6 mt-8 pt-8 border-t border-slate-100`}>
+                <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-colors">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white text-emerald-600 rounded-lg shadow-sm border border-slate-100">
-                            <CheckCircle className="w-5 h-5" />
+                        <div className="p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-slate-100">
+                            <Briefcase className="w-5 h-5" />
                         </div>
                         <div>
                             <p className="text-xs text-slate-500 font-medium">
-                                {isManager ? 'Total Concluído' : 'Minhas Conclusões'}
+                                {isManager ? 'Total de Empreendimentos' : isASP ? 'Empreendimentos Atendidos' : 'Meus Empreendimentos'}
                             </p>
-                            <p className="text-xl font-bold text-slate-900">{completedVisits}</p>
+                            <p className="text-xl font-bold text-slate-900">{uniqueEmpreendimentos}</p>
                         </div>
                     </div>
                 </div>
-            )}
 
-            {/* Metric 4 (or 3): Pendências */}
-            <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-amber-200 transition-colors">
-                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white text-amber-600 rounded-lg shadow-sm border border-slate-100">
-                        <Clock className="w-5 h-5" />
+                {isASP ? (
+                    <>
+                        <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-200 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white text-indigo-600 rounded-lg shadow-sm border border-slate-100">
+                                    <FileCheck className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500 font-medium">EVEs Prontos</p>
+                                    <p className="text-xl font-bold text-slate-900">{aspEvesProntos}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-emerald-200 transition-colors">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-white text-emerald-600 rounded-lg shadow-sm border border-slate-100">
+                                    <ClipboardCheck className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500 font-medium">Planos de Ação Prontos</p>
+                                    <p className="text-xl font-bold text-slate-900">{aspPlanosProntos}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-emerald-200 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-white text-emerald-600 rounded-lg shadow-sm border border-slate-100">
+                                <CheckCircle className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500 font-medium">
+                                    {isManager ? 'Total Concluído' : 'Minhas Conclusões'}
+                                </p>
+                                <p className="text-xl font-bold text-slate-900">{completedVisits}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-xs text-slate-500 font-medium">
-                             {isManager ? 'Pendências da Equipe' : 'Pendências (Visitas)'}
-                        </p>
-                        <p className="text-xl font-bold text-slate-900">{activeVisits}</p>
+                )}
+
+                <div className="group p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-amber-200 transition-colors">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white text-amber-600 rounded-lg shadow-sm border border-slate-100">
+                            <Clock className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-slate-500 font-medium">
+                                {isManager ? 'Pendências da Equipe' : 'Pendências (Visitas)'}
+                            </p>
+                            <p className="text-xl font-bold text-slate-900">{activeVisits}</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        )}
       </div>
 
       {/* Main Content Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-         {/* Left Column: Activities */}
+         {/* Left Column: Activities or Sales Info */}
          <div className="lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                    <MapPin className="w-6 h-6 text-slate-400" />
-                    Roteiro de Atividades
-                </h3>
-                <span className="text-xs font-semibold bg-slate-100 text-slate-500 px-2 py-1 rounded-md">
-                    {myDeals.length} Registros
-                </span>
-            </div>
             
-            {myDeals.length === 0 ? (
-                <div className="bg-white p-12 rounded-3xl border border-slate-100 text-center text-slate-400 shadow-sm">
-                    <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-10" />
-                    <p className="text-lg font-medium text-slate-500">Nenhuma atividade atribuída a você.</p>
-                    {isManager && <p className="text-sm mt-2">Como Coordenadora, utilize o painel "Fomento" para ver a visão global.</p>}
+            {/* If Sales Agent, Show Sales Charts or Specific Data instead of Field Activities */}
+            {isSalesAgent ? (
+                <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+                    <div className="flex items-center justify-between mb-6">
+                         <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <BarChart3 className="w-5 h-5 text-blue-600"/> Performance de Vendas
+                         </h3>
+                         <select className="text-sm border-none bg-slate-50 rounded-lg px-3 py-1 font-medium text-slate-600 outline-none cursor-pointer">
+                             <option>Últimos 7 dias</option>
+                             <option>Este Mês</option>
+                         </select>
+                    </div>
+                    <div className="h-64 flex items-center justify-center bg-slate-50 rounded-2xl border border-slate-100 text-slate-400">
+                         <div className="text-center">
+                             <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-20"/>
+                             <p className="text-sm font-medium">Gráfico de Vendas (Simulação)</p>
+                         </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                         <div className="p-4 bg-blue-50 rounded-xl">
+                             <p className="text-xs text-blue-600 font-bold uppercase mb-1">Produto Destaque</p>
+                             <p className="font-bold text-slate-800">Kit Pano de Prato</p>
+                             <p className="text-xs text-slate-500">12 unidades vendidas</p>
+                         </div>
+                         <div className="p-4 bg-emerald-50 rounded-xl">
+                             <p className="text-xs text-emerald-600 font-bold uppercase mb-1">Meta Diária</p>
+                             <div className="w-full bg-emerald-200 h-2 rounded-full mt-2">
+                                 <div className="bg-emerald-500 h-2 rounded-full" style={{width: '80%'}}></div>
+                             </div>
+                             <p className="text-right text-xs text-emerald-700 font-bold mt-1">80% Atingido</p>
+                         </div>
+                    </div>
                 </div>
             ) : (
-                <div className="space-y-4">
-                    {myDeals.map(deal => {
-                        const contact = contacts.find(c => c.id === deal.contactId);
-                        const isExpanded = expandedDealId === deal.id;
-                        
-                        return (
-                            <div key={deal.id} className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'shadow-md border-blue-200' : 'shadow-sm border-slate-200 hover:border-blue-300'}`}>
-                                <div className="p-5 flex justify-between items-center cursor-pointer" onClick={() => toggleDetails(deal.id)}>
-                                    <div className="flex items-start gap-4">
-                                        <div className={`mt-1 w-10 h-10 rounded-full flex items-center justify-center border ${deal.stage === DealStage.CONCLUIDO ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                                            {deal.stage === DealStage.CONCLUIDO ? <CheckCircle className="w-5 h-5"/> : <Clock className="w-5 h-5"/>}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-slate-900 text-lg">{contact?.name || 'Empreendimento'}</h4>
-                                            <p className="text-sm text-slate-500 mb-2">{deal.title}</p>
-                                            <div className="flex items-center gap-3">
-                                                 <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md border ${deal.stage === DealStage.CONCLUIDO ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
-                                                    {deal.stage}
-                                                </span>
-                                                <span className="text-xs text-slate-400 flex items-center gap-1"><MapPin className="w-3 h-3"/> {contact?.company}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button 
-                                        className={`p-2 rounded-full transition-colors ${isExpanded ? 'bg-slate-100 text-slate-600' : 'text-slate-300 hover:bg-slate-50 hover:text-slate-500'}`}
-                                    >
-                                        {isExpanded ? <ChevronUp className="w-5 h-5"/> : <ChevronDown className="w-5 h-5"/>}
-                                    </button>
-                                </div>
+                /* Standard Field Activities for ASP/Managers */
+                <>
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                            <MapPin className="w-6 h-6 text-slate-400" />
+                            Roteiro de Atividades
+                        </h3>
+                        <span className="text-xs font-semibold bg-slate-100 text-slate-500 px-2 py-1 rounded-md">
+                            {myDeals.length} Registros
+                        </span>
+                    </div>
+                    
+                    {myDeals.length === 0 ? (
+                        <div className="bg-white p-12 rounded-3xl border border-slate-100 text-center text-slate-400 shadow-sm">
+                            <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-10" />
+                            <p className="text-lg font-medium text-slate-500">Nenhuma atividade atribuída a você.</p>
+                            {isManager && <p className="text-sm mt-2">Como Coordenadora, utilize o painel "Fomento" para ver a visão global.</p>}
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {myDeals.map(deal => {
+                                const contact = contacts.find(c => c.id === deal.contactId);
+                                const isExpanded = expandedDealId === deal.id;
                                 
-                                {isExpanded && (
-                                    <div className="px-5 pb-5 pt-0 animate-fade-in">
-                                        <div className="p-5 bg-slate-50/50 rounded-xl border border-slate-100 mt-2">
-                                            <div className="flex gap-4">
-                                                <FileText className="w-5 h-5 text-slate-400 shrink-0 mt-1" />
-                                                <div className="flex-1 space-y-4">
-                                                    <div>
-                                                        <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Dados do Beneficiário</h5>
-                                                        <div className="grid grid-cols-2 gap-4 text-sm bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
-                                                            <div>
-                                                                <span className="block text-xs text-slate-400">Telefone</span>
-                                                                <span className="font-medium text-slate-700">{contact?.phone}</span>
-                                                            </div>
-                                                            <div>
-                                                                <span className="block text-xs text-slate-400">Email</span>
-                                                                <span className="font-medium text-slate-700">{contact?.email}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Notas de Campo</h5>
-                                                        <p className="text-sm text-slate-600 italic leading-relaxed bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
-                                                            "{contact?.notes || "Nenhuma observação registrada."}"
-                                                        </p>
+                                return (
+                                    <div key={deal.id} className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'shadow-md border-blue-200' : 'shadow-sm border-slate-200 hover:border-blue-300'}`}>
+                                        <div className="p-5 flex justify-between items-center cursor-pointer" onClick={() => toggleDetails(deal.id)}>
+                                            <div className="flex items-start gap-4">
+                                                <div className={`mt-1 w-10 h-10 rounded-full flex items-center justify-center border ${deal.stage === DealStage.CONCLUIDO ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                                    {deal.stage === DealStage.CONCLUIDO ? <CheckCircle className="w-5 h-5"/> : <Clock className="w-5 h-5"/>}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-slate-900 text-lg">{contact?.name || 'Empreendimento'}</h4>
+                                                    <p className="text-sm text-slate-500 mb-2">{deal.title}</p>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md border ${deal.stage === DealStage.CONCLUIDO ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
+                                                            {deal.stage}
+                                                        </span>
+                                                        <span className="text-xs text-slate-400 flex items-center gap-1"><MapPin className="w-3 h-3"/> {contact?.company}</span>
                                                     </div>
                                                 </div>
                                             </div>
+                                            <button 
+                                                className={`p-2 rounded-full transition-colors ${isExpanded ? 'bg-slate-100 text-slate-600' : 'text-slate-300 hover:bg-slate-50 hover:text-slate-500'}`}
+                                            >
+                                                {isExpanded ? <ChevronUp className="w-5 h-5"/> : <ChevronDown className="w-5 h-5"/>}
+                                            </button>
                                         </div>
+                                        
+                                        {isExpanded && (
+                                            <div className="px-5 pb-5 pt-0 animate-fade-in">
+                                                <div className="p-5 bg-slate-50/50 rounded-xl border border-slate-100 mt-2">
+                                                    <div className="flex gap-4">
+                                                        <FileText className="w-5 h-5 text-slate-400 shrink-0 mt-1" />
+                                                        <div className="flex-1 space-y-4">
+                                                            <div>
+                                                                <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Dados do Beneficiário</h5>
+                                                                <div className="grid grid-cols-2 gap-4 text-sm bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
+                                                                    <div>
+                                                                        <span className="block text-xs text-slate-400">Telefone</span>
+                                                                        <span className="font-medium text-slate-700">{contact?.phone}</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span className="block text-xs text-slate-400">Email</span>
+                                                                        <span className="font-medium text-slate-700">{contact?.email}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Notas de Campo</h5>
+                                                                <p className="text-sm text-slate-600 italic leading-relaxed bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
+                                                                    "{contact?.notes || "Nenhuma observação registrada."}"
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                        )
-                    })}
-                </div>
+                                )
+                            })}
+                        </div>
+                    )}
+                </>
             )}
          </div>
 

@@ -9,6 +9,8 @@ import { Administrative } from './pages/Administrative';
 import { UserManagement } from './pages/UserManagement';
 import { Commercial } from './pages/Commercial';
 import { Profile } from './pages/Profile';
+import { CadCidadao } from './pages/CadCidadao';
+import { EVE } from './pages/EVE';
 import { Contact, Deal, DealStage, View, ActivityType, Appointment, AppointmentType, User, UserRole, Product } from './types';
 
 // Mock Data Initialization (SIG-CESOL Context)
@@ -42,6 +44,14 @@ const INITIAL_USERS: User[] = [
     password: '123',
     role: UserRole.AGENTE_PRODUTIVO,
     avatar: 'https://ui-avatars.com/api/?name=Ana+ASP&background=random'
+  },
+  {
+    id: '4',
+    name: 'Carlos Vendedor',
+    email: 'vendas@cesol.ba.gov.br',
+    password: '123',
+    role: UserRole.AGENTE_VENDA,
+    avatar: 'https://ui-avatars.com/api/?name=Carlos+Vendedor&background=random'
   }
 ];
 
@@ -209,6 +219,26 @@ export default function App() {
         setView('dashboard');
       }
     }
+    // Restriction for Technical Modules
+    if ((view === 'cadcidadao' || view === 'eve') && currentUser) {
+        const allowed = currentUser.role === UserRole.PRESIDENTE || 
+                        currentUser.role === UserRole.COORD_GERAL || 
+                        currentUser.role === UserRole.AGENTE_PRODUTIVO;
+        if (!allowed) {
+            setView('dashboard');
+        }
+    }
+    // New Restriction for Commercial Module
+    if (view === 'comercial' && currentUser) {
+        const allowed = currentUser.role === UserRole.PRESIDENTE ||
+                        currentUser.role === UserRole.COORD_GERAL ||
+                        currentUser.role === UserRole.COORD_ADMIN ||
+                        currentUser.role === UserRole.AGENTE_VENDA;
+        if (!allowed) {
+            setView('dashboard');
+        }
+    }
+
   }, [view, currentUser]);
 
   const handleLogin = (user: User) => {
@@ -350,12 +380,20 @@ export default function App() {
       {view === 'fomento' && (
         <Pipeline 
           deals={deals} 
-          contacts={contacts}
+          contacts={contacts} 
           users={users}
           currentUser={currentUser}
           onUpdateDeal={handleUpdateDeal}
           onSelectDeal={handleSelectDeal}
         />
+      )}
+
+      {view === 'cadcidadao' && (
+        <CadCidadao />
+      )}
+
+      {view === 'eve' && (
+        <EVE />
       )}
       
       {view === 'comercial' && (

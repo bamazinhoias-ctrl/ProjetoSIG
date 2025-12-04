@@ -98,4 +98,4 @@ export interface AIAnalysis {
   emailDraft: string;
 }
 
-export type View = 'dashboard' | 'agenda' | 'fomento' | 'comercial' | 'admin' | 'settings' | 'contacts' | 'users' | 'profile';
+export type View = 'dashboard' | 'agenda' | 'fomento' | 'cadcidadao' | 'eve' | 'comercial' | 'admin' | 'settings' | 'contacts' | 'users' | 'profile';

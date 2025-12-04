@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, AreaChart, Area } from 'recharts';
 import { Deal, DealStage, User, UserRole } from '../types';
-import { Calendar, Tablet, FileText, CheckCircle2, UserCheck, LayoutDashboard, Briefcase } from 'lucide-react';
+import { Calendar, Tablet, FileText, CheckCircle2, UserCheck, LayoutDashboard, Briefcase, DollarSign, ShoppingBag, Target, TrendingUp, Package } from 'lucide-react';
 
 interface DashboardProps {
   deals: Deal[];
@@ -12,13 +12,12 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, users, currentUser }) => {
   const isManager = currentUser.role === UserRole.PRESIDENTE || currentUser.role === UserRole.COORD_GERAL;
+  const isSales = currentUser.role === UserRole.AGENTE_VENDA;
   
   // Filter deals based on role: Managers see all, ASPs see only theirs
   const relevantDeals = isManager ? deals : deals.filter(d => d.assigneeId === currentUser.id);
 
   // Calculate Unique Contacts for the current user view
-  // If Manager: Show Total Contacts passed from App
-  // If ASP: Calculate how many unique contactIds exist in their assigned deals
   const myEmpreendimentosCount = useMemo(() => {
     if (isManager) return totalContacts;
     const uniqueIds = new Set(relevantDeals.map(d => d.contactId));
@@ -44,6 +43,131 @@ export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, user
     concluido: relevantDeals.filter(d => d.stage === DealStage.CONCLUIDO).length,
   };
 
+  // --- SALES AGENT DASHBOARD ---
+  if (isSales) {
+    // Mock Data for Sales Charts
+    const salesData = [
+        { name: 'Seg', value: 1200 },
+        { name: 'Ter', value: 950 },
+        { name: 'Qua', value: 1600 },
+        { name: 'Qui', value: 1100 },
+        { name: 'Sex', value: 2100 },
+        { name: 'Sáb', value: 2800 },
+        { name: 'Dom', value: 1800 },
+    ];
+
+    return (
+        <div className="space-y-6 animate-fade-in">
+             <div>
+                <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <LayoutDashboard className="w-5 h-5 text-slate-500"/>
+                    Dashboard Comercial (Loja)
+                </h2>
+                
+                {/* Sales Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 rounded-lg bg-emerald-100 text-emerald-600">
+                                <DollarSign className="w-5 h-5" />
+                            </div>
+                            <span className="text-2xl font-bold text-emerald-900">R$ 1.250</span>
+                        </div>
+                        <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Volume Diário</p>
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-blue-100 bg-blue-50 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                                <ShoppingBag className="w-5 h-5" />
+                            </div>
+                            <span className="text-2xl font-bold text-blue-900">R$ 45,90</span>
+                        </div>
+                        <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Ticket Médio</p>
+                    </div>
+
+                     <div className="p-4 rounded-xl border border-purple-100 bg-purple-50 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 rounded-lg bg-purple-100 text-purple-600">
+                                <Target className="w-5 h-5" />
+                            </div>
+                            <span className="text-2xl font-bold text-purple-900">65%</span>
+                        </div>
+                        <p className="text-xs font-semibold text-purple-700 uppercase tracking-wide">Meta de Loja</p>
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-amber-100 bg-amber-50 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 rounded-lg bg-amber-100 text-amber-600">
+                                <TrendingUp className="w-5 h-5" />
+                            </div>
+                            <span className="text-2xl font-bold text-amber-900">28</span>
+                        </div>
+                        <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide">Transações</p>
+                    </div>
+                </div>
+             </div>
+
+             {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Sales Chart */}
+                <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm min-h-[400px]">
+                    <h3 className="text-lg font-semibold text-slate-800 mb-6 flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-slate-500"/> Evolução de Vendas (Semanal)
+                    </h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <AreaChart data={salesData}>
+                            <defs>
+                                <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+                            <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} tickFormatter={(val)=>`R$${val}`}/>
+                            <Tooltip 
+                                contentStyle={{borderRadius: '8px', border:'none', boxShadow:'0 4px 6px -1px rgba(0,0,0,0.1)'}}
+                                formatter={(val: number) => [`R$ ${val}`, 'Vendas']}
+                            />
+                            <Area type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+
+                {/* Top Products / Recent Sales */}
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <Package className="w-5 h-5 text-slate-500"/> Itens Mais Vendidos
+                    </h3>
+                    <div className="space-y-4">
+                        {[
+                            { name: 'Mel Orgânico', qty: 45, val: 'R$ 890' },
+                            { name: 'Kit Pano de Prato', qty: 32, val: 'R$ 640' },
+                            { name: 'Doce de Leite', qty: 28, val: 'R$ 420' },
+                            { name: 'Licor de Jenipapo', qty: 15, val: 'R$ 380' },
+                            { name: 'Biscoito Caseiro', qty: 12, val: 'R$ 180' },
+                        ].map((item, i) => (
+                            <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors">
+                                <div>
+                                    <p className="font-bold text-slate-800 text-sm">{item.name}</p>
+                                    <p className="text-xs text-slate-500">{item.qty} unidades</p>
+                                </div>
+                                <span className="font-bold text-slate-700 text-sm">{item.val}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <button className="w-full mt-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                        Ver Relatório Completo
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+  }
+
+  // --- STANDARD OPS VIEW (For ASPs, Coordinators, President) ---
+  
   // Card Configuration
   const cards = [
     { 
