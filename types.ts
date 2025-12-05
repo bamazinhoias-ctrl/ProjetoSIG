@@ -87,7 +87,12 @@ export interface Contact {
   address?: string;
   
   // Novos Campos
+  neighborhood?: string; // Bairro
+  zip?: string; // CEP
+  state?: string; // UF
   city?: string;
+  cellphone?: string; // Celular
+  
   zone?: 'Urbana' | 'Rural';
   cnpj?: string;
   menCount?: number;
