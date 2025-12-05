@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, UserRole, View } from '../types';
-import { Users, Save, Plus, Shield, ShieldCheck, User as UserIcon, Building2, Lock, Eye, Pencil, Trash2, X, CheckSquare, Square } from 'lucide-react';
+import { Users, Save, Plus, Shield, ShieldCheck, User as UserIcon, Building2, Lock, Eye, Pencil, Trash2, X, CheckSquare, Square, Briefcase, Mail, CheckCircle } from 'lucide-react';
 
 interface UserManagementProps {
   users: User[];
@@ -13,13 +13,14 @@ interface UserManagementProps {
   currentUserRole: UserRole;
 }
 
-const AVAILABLE_PERMISSIONS: { id: string; label: string; view: View }[] = [
+const AVAILABLE_PERMISSIONS: { id: string; label: string; view: string }[] = [
     { id: '1', label: 'Financeiro / Administrativo', view: 'admin' },
     { id: '2', label: 'Comercial (Loja)', view: 'comercial' },
     { id: '3', label: 'Fomento (Fluxo)', view: 'fomento' },
     { id: '4', label: 'EVE (Estudo de Viabilidade)', view: 'eve' },
     { id: '5', label: 'Agenda Operacional', view: 'agenda' },
     { id: '6', label: 'Gestão de Equipe (RH)', view: 'users' },
+    { id: '7', label: 'Editar Empreendimentos', view: 'edit_empreendimentos' },
 ];
 
 export const UserManagement: React.FC<UserManagementProps> = ({ 
@@ -52,12 +53,18 @@ export const UserManagement: React.FC<UserManagementProps> = ({
   };
 
   const handleEditClick = (user: User) => {
+    // Permission check: Prevents Admin Coord from editing President
+    if (currentUserRole === UserRole.COORD_ADMIN && user.role === UserRole.PRESIDENTE) {
+        alert("Você não tem permissão para editar o Presidente.");
+        return;
+    }
+
     setIsEditing(true);
     setEditingId(user.id);
     setFormData({
         name: user.name,
         email: user.email,
-        password: user.password || '', // Usually keep empty for security, but simple demo
+        password: user.password || '', 
         role: user.role,
         permissions: user.permissions || []
     });
@@ -102,7 +109,6 @@ export const UserManagement: React.FC<UserManagementProps> = ({
               permissions: formData.permissions
           };
           onUpdateUser(updatedUser);
-          alert('Usuário atualizado com sucesso!');
       } else {
           // Create New
           onAddUser({
@@ -114,251 +120,197 @@ export const UserManagement: React.FC<UserManagementProps> = ({
             avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=random`,
             permissions: formData.permissions || []
           });
-          alert('Usuário cadastrado com sucesso!');
       }
 
-      handleCancelEdit(); // Reset form
+      handleCancelEdit(); 
     }
   };
 
   const getRoleBadge = (role: UserRole) => {
     switch (role) {
       case UserRole.PRESIDENTE: return 'bg-purple-100 text-purple-700 border-purple-200';
-      case UserRole.COORD_GERAL: 
-      case UserRole.COORD_ADMIN:
-        return 'bg-brand-100 text-brand-700 border-brand-200';
+      case UserRole.COORD_GERAL: return 'bg-blue-100 text-blue-700 border-blue-200';
+      case UserRole.COORD_ADMIN: return 'bg-brand-100 text-brand-700 border-brand-200';
+      case UserRole.AGENTE_PRODUTIVO: return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case UserRole.AGENTE_VENDA: return 'bg-amber-100 text-amber-700 border-amber-200';
       default: return 'bg-slate-100 text-slate-700 border-slate-200';
     }
   };
 
-  // RBAC Logic
-  const getAllowedRolesToCreate = () => {
-    if (currentUserRole === UserRole.PRESIDENTE) {
-        return Object.values(UserRole); // Can create everyone
-    }
-    if (currentUserRole === UserRole.COORD_GERAL) {
-        // Can create Operational and Specific roles
-        return [
-            UserRole.AGENTE_PRODUTIVO,
-            UserRole.AGENTE_VENDA,
-            UserRole.ESTAGIARIO,
-            UserRole.MOTORISTA,
-            UserRole.AUX_ADMIN
-        ];
-    }
-    return []; // Others cannot create users
-  };
+  // Logic: Who can manage users?
+  // President: Everyone
+  // General Coord: Everyone except President
+  // Admin Coord: Everyone except President and General Coord (Updated per request)
+  const canManageUsers = currentUserRole === UserRole.PRESIDENTE || currentUserRole === UserRole.COORD_GERAL || currentUserRole === UserRole.COORD_ADMIN;
 
-  const allowedRoles = getAllowedRolesToCreate();
-  const canManageCesol = currentUserRole === UserRole.PRESIDENTE;
-  const canManageUsers = currentUserRole === UserRole.PRESIDENTE || currentUserRole === UserRole.COORD_GERAL;
-  const canGrantPermissions = currentUserRole === UserRole.PRESIDENTE || currentUserRole === UserRole.COORD_GERAL;
+  const getAvailableRoles = () => {
+      if (currentUserRole === UserRole.PRESIDENTE) return Object.values(UserRole);
+      if (currentUserRole === UserRole.COORD_GERAL) return Object.values(UserRole).filter(r => r !== UserRole.PRESIDENTE);
+      if (currentUserRole === UserRole.COORD_ADMIN) return Object.values(UserRole).filter(r => r !== UserRole.PRESIDENTE && r !== UserRole.COORD_GERAL);
+      return [];
+  }
+
+  const handleDelete = (user: User) => {
+      if (user.role === UserRole.PRESIDENTE || (currentUserRole === UserRole.COORD_ADMIN && user.role === UserRole.COORD_GERAL)) {
+          alert("Ação não permitida para este cargo superior.");
+          return;
+      }
+      onDeleteUser(user.id);
+  }
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-10">
       
-      {/* Configuração do CESOL (Only President) */}
-      <div className={`bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden transition-opacity ${!canManageCesol ? 'opacity-60 grayscale' : ''}`}>
-        <div className="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+      {/* Header Info */}
+      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-slate-500" />
-              Configuração da Unidade (Tenant)
-            </h2>
-            <p className="text-sm text-slate-500">Defina a identidade do Centro Público gerido por este sistema.</p>
+              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                  <Briefcase className="w-6 h-6 text-brand-600" />
+                  Gestão de Equipe & RH
+              </h2>
+              <p className="text-sm text-slate-500">Controle de colaboradores e permissões de acesso.</p>
           </div>
-          {!canManageCesol && <Lock className="w-5 h-5 text-slate-400" />}
+          <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg border border-slate-100">
+               <Users className="w-5 h-5 text-slate-400"/>
+               <span className="font-bold text-slate-700">{users.length} Colaboradores Ativos</span>
+          </div>
+      </div>
+
+      {/* Configuração do CESOL (Tenant) */}
+      <div className={`bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden`}>
+        <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+          <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-slate-500" /> Identidade da Unidade
+          </h3>
+          {currentUserRole !== UserRole.PRESIDENTE && <Lock className="w-4 h-4 text-slate-300" />}
         </div>
-        <div className="p-6">
-          <label className="block text-sm font-medium text-slate-700 mb-2">Nome do CESOL</label>
-          <div className="flex gap-4">
+        <div className="p-4 flex gap-4">
             <input 
               type="text" 
-              disabled={!canManageCesol}
-              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none disabled:bg-slate-50"
+              disabled={currentUserRole !== UserRole.PRESIDENTE}
+              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none disabled:bg-slate-50"
               value={newCesolName}
               onChange={(e) => setNewCesolName(e.target.value)}
-              placeholder="Ex: CESOL Litoral Sul"
             />
-            {canManageCesol && (
+            {currentUserRole === UserRole.PRESIDENTE && (
                 <button 
                 onClick={handleSaveCesolName}
-                className="px-6 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-900 transition-colors flex items-center gap-2"
                 >
                 <Save className="w-4 h-4" /> Salvar
                 </button>
             )}
-          </div>
         </div>
       </div>
 
-      {/* Cadastro de Equipe */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100 bg-slate-50">
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-slate-500" />
-            Gestão de Cargos e Acessos
-          </h2>
-          <p className="text-sm text-slate-500">Cadastre novos membros e defina suas permissões no sistema.</p>
-        </div>
-        
-        <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Main Content: Form & List */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="lg:col-span-1 space-y-4">
-             <div className="flex justify-between items-center">
-                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">
-                    {isEditing ? 'Editar Usuário' : 'Novo Usuário'}
-                </h3>
-                {allowedRoles.length === 0 && <span className="text-xs text-red-500 bg-red-50 px-2 py-1 rounded">Sem permissão</span>}
-                {isEditing && (
-                    <button type="button" onClick={handleCancelEdit} className="text-xs text-red-600 hover:text-red-800 flex items-center gap-1">
-                        <X className="w-3 h-3"/> Cancelar
-                    </button>
-                )}
-             </div>
-             
-             <div className="space-y-4 opacity-100 disabled:opacity-50">
-                <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Nome Completo</label>
-                    <input 
-                        required
-                        disabled={allowedRoles.length === 0}
-                        type="text" 
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none text-sm disabled:bg-slate-50"
-                        value={formData.name}
-                        onChange={e => setFormData({...formData, name: e.target.value})}
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Email</label>
-                    <input 
-                        required
-                        disabled={allowedRoles.length === 0}
-                        type="email" 
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none text-sm disabled:bg-slate-50"
-                        value={formData.email}
-                        onChange={e => setFormData({...formData, email: e.target.value})}
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Senha {isEditing ? '(Redefinir)' : ''}</label>
-                    <input 
-                        required
-                        disabled={allowedRoles.length === 0}
-                        type="text" 
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none text-sm disabled:bg-slate-50"
-                        value={formData.password}
-                        onChange={e => setFormData({...formData, password: e.target.value})}
-                    />
-                </div>
-                <div>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">Cargo / Função</label>
-                    <select 
-                        disabled={allowedRoles.length === 0}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none text-sm disabled:bg-slate-50"
-                        value={formData.role}
-                        onChange={e => setFormData({...formData, role: e.target.value as UserRole})}
-                    >
-                        {allowedRoles.map(role => (
-                        <option key={role} value={role}>{role}</option>
-                        ))}
-                    </select>
-                </div>
-                
-                {/* Permissions Panel */}
-                {canGrantPermissions && (
-                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 mt-2">
-                        <h4 className="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-1">
-                            <Lock className="w-3 h-3"/> Permissões Extras
-                        </h4>
-                        <div className="space-y-2">
-                            {AVAILABLE_PERMISSIONS.map(perm => (
-                                <button
-                                    key={perm.id}
-                                    type="button"
-                                    onClick={() => togglePermission(perm.view)}
-                                    className="w-full flex items-center gap-2 text-xs text-left text-slate-700 hover:text-slate-900"
-                                >
-                                    {formData.permissions?.includes(perm.view) ? (
-                                        <CheckSquare className="w-4 h-4 text-brand-600" />
-                                    ) : (
-                                        <Square className="w-4 h-4 text-slate-300" />
-                                    )}
-                                    {perm.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
-                
-                <button 
-                    type="submit" 
-                    disabled={allowedRoles.length === 0}
-                    className={`w-full py-2.5 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${isEditing ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-brand-600 hover:bg-brand-700 text-white'}`}
-                >
-                    {isEditing ? <Save className="w-4 h-4"/> : <Plus className="w-4 h-4" />} 
-                    {isEditing ? 'Salvar Alterações' : 'Adicionar Membro'}
-                </button>
-             </div>
-          </form>
-
-          {/* List */}
-          <div className="lg:col-span-2 border-l border-slate-100 pl-8">
-            <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4">Equipe Atual ({users.length})</h3>
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-              {users.map(user => (
-                <div key={user.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 hover:border-brand-200 transition-colors group">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm overflow-hidden">
-                        {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : (user.role === UserRole.PRESIDENTE ? <Shield className="w-5 h-5 text-purple-600"/> : <UserIcon className="w-5 h-5"/>)}
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900 text-sm">{user.name}</p>
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-slate-500">{user.email}</p>
-                        <span className={`text-[10px] px-2 py-0 rounded-full border font-semibold ${getRoleBadge(user.role)}`}>
-                            {user.role}
-                        </span>
-                      </div>
-                    </div>
+          {/* User Form (Left Sidebar) */}
+          <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden sticky top-4">
+                  <div className="p-4 border-b border-slate-100 bg-slate-50">
+                      <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide flex justify-between items-center">
+                          {isEditing ? 'Editar Ficha' : 'Novo Colaborador'}
+                          {isEditing && <button onClick={handleCancelEdit}><X className="w-4 h-4 text-slate-400 hover:text-red-500"/></button>}
+                      </h3>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => onViewProfile(user)}
-                        title="Ver Perfil"
-                        className="flex items-center justify-center w-8 h-8 text-slate-500 hover:text-brand-600 bg-white border border-slate-200 rounded-lg hover:border-brand-300 transition-all"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                  {canManageUsers ? (
+                      <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-600 uppercase mb-1">Nome Completo</label>
+                                <input required type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                                    value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ex: Maria Silva"/>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-600 uppercase mb-1">E-mail Corporativo</label>
+                                <input required type="email" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                                    value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}/>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-600 uppercase mb-1">Senha de Acesso</label>
+                                <input required type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                                    value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} placeholder="Definir senha provisória"/>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-600 uppercase mb-1">Cargo / Função</label>
+                                <select className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                                    value={formData.role} onChange={e => setFormData({...formData, role: e.target.value as UserRole})}>
+                                    {getAvailableRoles().map(role => <option key={role} value={role}>{role}</option>)}
+                                </select>
+                            </div>
 
-                      {canManageUsers && (
-                          <>
-                             <button 
-                                onClick={() => handleEditClick(user)}
-                                title="Editar Usuário"
-                                className="flex items-center justify-center w-8 h-8 text-slate-500 hover:text-amber-600 bg-white border border-slate-200 rounded-lg hover:border-amber-300 transition-all"
-                             >
-                                <Pencil className="w-4 h-4" />
-                             </button>
-                             <button 
-                                onClick={() => onDeleteUser(user.id)}
-                                title="Excluir Usuário"
-                                className="flex items-center justify-center w-8 h-8 text-slate-500 hover:text-red-600 bg-white border border-slate-200 rounded-lg hover:border-red-300 transition-all"
-                             >
-                                <Trash2 className="w-4 h-4" />
-                             </button>
-                          </>
-                      )}
-                  </div>
-                </div>
-              ))}
-            </div>
+                            <div className="pt-2">
+                                <label className="block text-xs font-bold text-slate-600 uppercase mb-2">Permissões Especiais</label>
+                                <div className="space-y-2 bg-slate-50 p-3 rounded-lg border border-slate-100 max-h-48 overflow-y-auto">
+                                    {AVAILABLE_PERMISSIONS.map(perm => (
+                                        <div key={perm.id} onClick={() => togglePermission(perm.view)} className="flex items-center gap-2 cursor-pointer hover:bg-slate-100 p-1 rounded">
+                                            {formData.permissions?.includes(perm.view) ? <CheckSquare className="w-4 h-4 text-brand-600"/> : <Square className="w-4 h-4 text-slate-300"/>}
+                                            <span className="text-xs text-slate-700">{perm.label}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button type="submit" className={`w-full py-3 rounded-lg text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 ${isEditing ? 'bg-amber-500 hover:bg-amber-600' : 'bg-brand-600 hover:bg-brand-700'}`}>
+                                {isEditing ? <Save className="w-4 h-4"/> : <Plus className="w-4 h-4"/>} 
+                                {isEditing ? 'Atualizar Dados' : 'Cadastrar Funcionário'}
+                            </button>
+                      </form>
+                  ) : (
+                      <div className="p-8 text-center text-slate-400 text-sm">
+                          Você não possui permissão para gerenciar usuários.
+                      </div>
+                  )}
+              </div>
           </div>
 
-        </div>
+          {/* User List (Right Content) */}
+          <div className="lg:col-span-2 space-y-4">
+             {users.map(user => (
+                 <div key={user.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all group flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                     {/* Avatar */}
+                     <div className="w-14 h-14 rounded-full bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                         {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover"/> : <UserIcon className="w-6 h-6 text-slate-300"/>}
+                     </div>
+
+                     {/* Info */}
+                     <div className="flex-1 min-w-0">
+                         <div className="flex items-center gap-2 mb-1">
+                             <h3 className="font-bold text-slate-800 text-base truncate">{user.name}</h3>
+                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${getRoleBadge(user.role)}`}>
+                                 {user.role}
+                             </span>
+                         </div>
+                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-slate-500">
+                             <span className="flex items-center gap-1"><Mail className="w-3 h-3"/> {user.email}</span>
+                             <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3"/> {user.permissions?.length || 0} Permissões</span>
+                         </div>
+                     </div>
+
+                     {/* Actions */}
+                     <div className="flex items-center gap-2 self-end sm:self-center">
+                         <button onClick={() => onViewProfile(user)} className="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors" title="Ver Perfil Completo">
+                             <Eye className="w-5 h-5"/>
+                         </button>
+                         
+                         {canManageUsers && (
+                             <>
+                                <button onClick={() => handleEditClick(user)} className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Editar Dados">
+                                    <Pencil className="w-5 h-5"/>
+                                </button>
+                                <button onClick={() => handleDelete(user)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Desligar Colaborador">
+                                    <Trash2 className="w-5 h-5"/>
+                                </button>
+                             </>
+                         )}
+                     </div>
+                 </div>
+             ))}
+          </div>
       </div>
+
     </div>
   );
 };

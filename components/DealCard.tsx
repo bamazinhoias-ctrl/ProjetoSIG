@@ -1,6 +1,6 @@
 import React from 'react';
-import { Deal, Contact, DealStage, User, UserRole } from '../types';
-import { MapPin, Calendar, ArrowRight, Tablet, Monitor, User as UserIcon, ChevronDown } from 'lucide-react';
+import { Deal, Contact, DealStage, User, UserRole, View } from '../types';
+import { MapPin, Calendar, ArrowRight, Tablet, Monitor, User as UserIcon, ChevronDown, ExternalLink } from 'lucide-react';
 
 interface DealCardProps {
   deal: Deal;
@@ -12,6 +12,7 @@ interface DealCardProps {
   onSelect: () => void;
   onAssign?: (dealId: string, userId: string) => void;
   onDragStart?: (e: React.DragEvent<HTMLDivElement>) => void;
+  onNavigate?: (view: View, contextId?: string) => void;
 }
 
 export const DealCard: React.FC<DealCardProps> = ({ 
@@ -23,7 +24,8 @@ export const DealCard: React.FC<DealCardProps> = ({
   onAdvance, 
   onSelect, 
   onAssign,
-  onDragStart 
+  onDragStart,
+  onNavigate
 }) => {
   
   // Determine icon based on stage context defined in scope
@@ -41,6 +43,21 @@ export const DealCard: React.FC<DealCardProps> = ({
       onAssign(deal.id, e.target.value);
     }
   };
+
+  const handleNavigateToTask = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!onNavigate || !deal.contactId) return;
+
+      if (deal.stage === DealStage.COLETA_EVE) {
+          onNavigate('eve', deal.contactId);
+      } else if (deal.stage === DealStage.COLETA_CAD) {
+          onNavigate('cadcidadao', deal.contactId);
+      } else if (deal.stage === DealStage.PLANO_ACAO) {
+          onNavigate('actionplan', deal.contactId);
+      }
+  };
+
+  const showTaskButton = [DealStage.COLETA_EVE, DealStage.COLETA_CAD, DealStage.PLANO_ACAO].includes(deal.stage);
 
   return (
     <div 
@@ -102,15 +119,26 @@ export const DealCard: React.FC<DealCardProps> = ({
           {new Date(deal.expectedCloseDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
         </div>
         
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            onAdvance();
-          }}
-          className="text-xs flex items-center gap-1 text-slate-600 hover:text-white font-medium hover:bg-blue-600 px-2 py-1 rounded-md transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow"
-        >
-          Mover <ArrowRight className="w-3 h-3" />
-        </button>
+        <div className="flex gap-2">
+            {showTaskButton && onNavigate && (
+                <button 
+                    onClick={handleNavigateToTask}
+                    className="text-xs flex items-center gap-1 text-slate-500 hover:text-brand-600 font-bold hover:bg-brand-50 px-2 py-1 rounded-md transition-all duration-200"
+                    title="Abrir Formulário"
+                >
+                    <ExternalLink className="w-3 h-3"/> Abrir
+                </button>
+            )}
+            <button 
+            onClick={(e) => {
+                e.stopPropagation();
+                onAdvance();
+            }}
+            className="text-xs flex items-center gap-1 text-slate-600 hover:text-white font-medium hover:bg-blue-600 px-2 py-1 rounded-md transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow"
+            >
+            Mover <ArrowRight className="w-3 h-3" />
+            </button>
+        </div>
       </div>
     </div>
   );

@@ -105,19 +105,19 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
     .sort((a, b) => a.time.localeCompare(b.time));
 
   return (
-    <div className="animate-fade-in flex flex-col lg:flex-row gap-4 pb-10">
+    <div className="animate-fade-in flex flex-col lg:flex-row gap-4 h-[calc(100vh-140px)]">
       
-      {/* LEFT: Calendar View - Removed h-full and overflow-hidden to allow full expansion */}
-      <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
+      {/* LEFT: Calendar View - FIXED HEIGHT CONTAINER */}
+      <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden h-full">
         {/* Header */}
-        <div className="shrink-0 px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="shrink-0 px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <div className="flex items-center gap-3">
                 <div className="flex gap-0.5 bg-white border border-slate-200 rounded-md shadow-sm">
                     <button onClick={handlePrevMonth} className="p-1 hover:bg-slate-50 rounded-l text-slate-500 hover:text-brand-600 transition-colors"><ChevronLeft className="w-4 h-4"/></button>
                     <div className="w-px bg-slate-100 my-1"></div>
                     <button onClick={handleNextMonth} className="p-1 hover:bg-slate-50 rounded-r text-slate-500 hover:text-brand-600 transition-colors"><ChevronRight className="w-4 h-4"/></button>
                 </div>
-                <h2 className="text-lg font-bold text-slate-700 capitalize flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-700 capitalize flex items-center gap-2">
                     {monthName}
                 </h2>
             </div>
@@ -129,81 +129,83 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                     }}
                     className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:shadow-md shadow-sm"
                 >
-                    <Plus className="w-3.5 h-3.5" /> Novo Agendamento
+                    <Plus className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Novo Agendamento</span>
                 </button>
             )}
         </div>
 
-        {/* Grid - Removed overflow-y-auto to let it grow naturally */}
-        <div className="p-5">
-            <div className="grid grid-cols-7 mb-2">
-                {WEEKDAYS.map(day => (
-                    <div key={day} className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-2">
-                        {day}
-                    </div>
-                ))}
-            </div>
-            <div className="grid grid-cols-7 gap-1.5 min-h-0">
-                {Array.from({ length: firstDay }).map((_, i) => (
-                    <div key={`empty-${i}`} className="min-h-[120px] bg-slate-50/30 rounded-lg border border-transparent"></div>
-                ))}
-                
-                {Array.from({ length: daysInMonth }).map((_, i) => {
-                    const day = i + 1;
-                    const dateStr = new Date(year, month, day).toISOString().split('T')[0];
-                    const dayApps = appointments.filter(a => a.date === dateStr);
-                    const isSelected = selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year;
-                    const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
-                    
-                    // Show only first 3 items to prevent clustering, adjusted logic
-                    const visibleApps = dayApps.slice(0, 3);
-                    const hiddenCount = dayApps.length - 3;
-
-                    return (
-                        <div 
-                            key={day}
-                            onClick={() => handleDayClick(day)}
-                            className={`min-h-[120px] border rounded-lg p-1.5 cursor-pointer transition-all hover:shadow-md relative group flex flex-col ${
-                                isSelected ? 'border-brand-400 ring-1 ring-brand-400 bg-brand-50/20' : 
-                                isToday ? 'border-brand-200 bg-brand-50/5' : 'border-slate-100 hover:border-brand-200'
-                            }`}
-                        >
-                            <div className="flex justify-between items-start mb-1">
-                                <span className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-brand-600 text-white font-bold' : 'text-slate-500'}`}>
-                                    {day}
-                                </span>
-                            </div>
-                            
-                            <div className="flex-1 flex flex-col gap-1 overflow-hidden">
-                                {visibleApps.map(app => (
-                                    <div key={app.id} className="text-[9px] truncate px-1.5 py-0.5 rounded bg-white border border-slate-100 text-slate-600 shadow-sm group-hover:border-brand-100 block w-full leading-tight">
-                                        <span className="font-bold mr-1 text-slate-400">{app.time}</span>
-                                        {app.title}
-                                    </div>
-                                ))}
-                                {hiddenCount > 0 && (
-                                    <div className="text-[9px] text-slate-400 font-bold pl-1 mt-auto">
-                                        + {hiddenCount}
-                                    </div>
-                                )}
-                            </div>
+        {/* Grid - Scrollable Internal Area */}
+        <div className="flex-1 overflow-y-auto overflow-x-auto p-3 bg-white">
+            <div className="min-w-[600px]"> {/* Ensures calendar doesn't crush on mobile */}
+                <div className="grid grid-cols-7 mb-2">
+                    {WEEKDAYS.map(day => (
+                        <div key={day} className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-1">
+                            {day}
                         </div>
-                    );
-                })}
+                    ))}
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                    {Array.from({ length: firstDay }).map((_, i) => (
+                        <div key={`empty-${i}`} className="min-h-[85px] bg-slate-50/30 rounded-lg border border-transparent"></div>
+                    ))}
+                    
+                    {Array.from({ length: daysInMonth }).map((_, i) => {
+                        const day = i + 1;
+                        const dateStr = new Date(year, month, day).toISOString().split('T')[0];
+                        const dayApps = appointments.filter(a => a.date === dateStr);
+                        const isSelected = selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year;
+                        const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+                        
+                        // Show only first 2 items to keep it compact
+                        const visibleApps = dayApps.slice(0, 2);
+                        const hiddenCount = dayApps.length - 2;
+
+                        return (
+                            <div 
+                                key={day}
+                                onClick={() => handleDayClick(day)}
+                                className={`min-h-[85px] border rounded-lg p-1 cursor-pointer transition-all hover:shadow-sm relative group flex flex-col ${
+                                    isSelected ? 'border-brand-400 ring-1 ring-brand-400 bg-brand-50/20' : 
+                                    isToday ? 'border-brand-200 bg-brand-50/5' : 'border-slate-100 hover:border-brand-200'
+                                }`}
+                            >
+                                <div className="flex justify-between items-start mb-0.5">
+                                    <span className={`text-[10px] font-medium w-5 h-5 flex items-center justify-center rounded-full ${isToday ? 'bg-brand-600 text-white font-bold' : 'text-slate-500'}`}>
+                                        {day}
+                                    </span>
+                                </div>
+                                
+                                <div className="flex-1 flex flex-col gap-0.5 overflow-hidden">
+                                    {visibleApps.map(app => (
+                                        <div key={app.id} className="text-[9px] truncate px-1 py-0.5 rounded bg-white border border-slate-100 text-slate-600 shadow-sm group-hover:border-brand-100 block w-full leading-tight">
+                                            <span className="font-bold mr-1 text-slate-400">{app.time}</span>
+                                            {app.title}
+                                        </div>
+                                    ))}
+                                    {hiddenCount > 0 && (
+                                        <div className="text-[8px] text-slate-400 font-bold pl-1 mt-auto">
+                                            + {hiddenCount}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </div>
       </div>
 
-      {/* RIGHT: Daily Detail Sidebar - Kept fixed height or stickiness if desired, but letting it flow for now */}
-      <div className="w-full lg:w-80 flex flex-col gap-6 shrink-0">
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm h-fit min-h-[500px] flex flex-col sticky top-4">
-            <div className="p-4 border-b border-slate-100 bg-slate-50 rounded-t-xl flex justify-between items-center">
+      {/* RIGHT: Daily Detail Sidebar */}
+      <div className="w-full lg:w-72 flex flex-col gap-6 shrink-0 h-full overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-full">
+            <div className="p-3 border-b border-slate-100 bg-slate-50 rounded-t-xl flex justify-between items-center shrink-0">
                 <div>
                     <h3 className="font-bold text-slate-700 flex items-center gap-2 text-sm">
                         <Clock className="w-4 h-4 text-brand-600" />
                         Agenda do Dia
                     </h3>
-                    <p className="text-xs text-slate-400 mt-0.5 capitalize">
+                    <p className="text-[10px] text-slate-400 mt-0.5 capitalize">
                         {selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' })}
                     </p>
                 </div>
@@ -212,7 +214,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                 </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 max-h-[calc(100vh-200px)]">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
                 {dailyAppointments.length === 0 ? (
                     <div className="text-center py-10 opacity-50 flex flex-col items-center justify-center h-full">
                         <Briefcase className="w-10 h-10 mb-2 text-slate-300"/>
@@ -235,31 +237,31 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                         const assignee = users.find(u => u.id === apt.assigneeId);
                         
                         return (
-                            <div key={apt.id} className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm hover:shadow-md hover:border-brand-300 transition-all group relative overflow-hidden">
+                            <div key={apt.id} className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm hover:shadow-md hover:border-brand-300 transition-all group relative overflow-hidden">
                                 <div className={`absolute left-0 top-0 bottom-0 w-1 ${apt.type === AppointmentType.VISITA ? 'bg-blue-500' : apt.type === AppointmentType.REUNIAO ? 'bg-purple-500' : 'bg-green-500'}`}></div>
                                 
-                                <div className="flex justify-between items-start mb-2 pl-2">
-                                    <span className="text-sm font-bold text-slate-700 font-mono">{apt.time}</span>
-                                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold border uppercase tracking-wider ${getTypeColor(apt.type)}`}>
+                                <div className="flex justify-between items-start mb-1 pl-2">
+                                    <span className="text-xs font-bold text-slate-700 font-mono">{apt.time}</span>
+                                    <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold border uppercase tracking-wider ${getTypeColor(apt.type)}`}>
                                         {apt.type}
                                     </span>
                                 </div>
                                 
-                                <h4 className="font-semibold text-slate-800 pl-2 mb-1 text-sm leading-tight">{apt.title}</h4>
+                                <h4 className="font-semibold text-slate-800 pl-2 mb-0.5 text-xs leading-tight">{apt.title}</h4>
                                 
                                 {contact && (
-                                    <div className="pl-2 flex items-start gap-1.5 text-[10px] text-slate-500 mb-2 leading-snug">
+                                    <div className="pl-2 flex items-start gap-1.5 text-[10px] text-slate-500 mb-1 leading-snug">
                                         <MapPin className="w-3 h-3 mt-0.5 shrink-0 text-slate-300"/>
-                                        <span>{contact.company} <span className="text-slate-400">• {contact.name}</span></span>
+                                        <span>{contact.company}</span>
                                     </div>
                                 )}
 
                                 {assignee && (
-                                    <div className="mt-2 pt-2 border-t border-slate-50 pl-2 flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[9px] text-slate-600 font-bold border border-slate-200">
+                                    <div className="mt-1 pt-1 border-t border-slate-50 pl-2 flex items-center gap-1.5">
+                                        <div className="w-4 h-4 rounded-full bg-slate-100 flex items-center justify-center text-[8px] text-slate-600 font-bold border border-slate-200">
                                             {assignee.name.charAt(0)}
                                         </div>
-                                        <span className="text-[10px] text-slate-600 font-medium">{assignee.name}</span>
+                                        <span className="text-[10px] text-slate-600 font-medium truncate">{assignee.name}</span>
                                     </div>
                                 )}
                             </div>

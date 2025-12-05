@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Deal, DealStage, Contact, User, UserRole } from '../types';
+import { Deal, DealStage, Contact, User, UserRole, View } from '../types';
 import { DealCard } from '../components/DealCard';
 import { Plus, Sparkles, Tablet, Monitor, CheckCircle, Smartphone, Lock, Filter, Users } from 'lucide-react';
 import { generatePipelineInsights } from '../services/geminiService';
@@ -11,11 +11,12 @@ interface PipelineProps {
   currentUser: User;
   onUpdateDeal: (deal: Deal) => void;
   onSelectDeal: (deal: Deal) => void;
+  onNavigate?: (view: View, contextId?: string) => void;
 }
 
 const STAGES = Object.values(DealStage);
 
-export const Pipeline: React.FC<PipelineProps> = ({ deals, contacts, users, currentUser, onUpdateDeal, onSelectDeal }) => {
+export const Pipeline: React.FC<PipelineProps> = ({ deals, contacts, users, currentUser, onUpdateDeal, onSelectDeal, onNavigate }) => {
   const [insight, setInsight] = useState<string | null>(null);
   const [loadingInsight, setLoadingInsight] = useState(false);
   const [dragOverStage, setDragOverStage] = useState<DealStage | null>(null);
@@ -208,6 +209,7 @@ export const Pipeline: React.FC<PipelineProps> = ({ deals, contacts, users, curr
                     onAdvance={() => handleAdvance(deal)}
                     onSelect={() => onSelectDeal(deal)}
                     onDragStart={(e) => handleDragStart(e, deal.id)}
+                    onNavigate={onNavigate}
                   />
                 ))}
                 

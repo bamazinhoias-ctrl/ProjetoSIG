@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Contact, Deal, AIAnalysis } from '../types';
+import { Contact, Deal, AIAnalysis, View } from '../types';
 import { Mail, Phone, MapPin, User, Sparkles, X, Send, FileText, ClipboardList } from 'lucide-react';
 import { generateLeadAnalysis } from '../services/geminiService';
 
 interface ContactsProps {
   contacts: Contact[];
   deals: Deal[];
+  onNavigate?: (view: View, contextId?: string) => void;
 }
 
-export const Contacts: React.FC<ContactsProps> = ({ contacts, deals }) => {
+export const Contacts: React.FC<ContactsProps> = ({ contacts, deals, onNavigate }) => {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [loadingAnalysis, setLoadingAnalysis] = useState(false);
@@ -26,6 +27,12 @@ export const Contacts: React.FC<ContactsProps> = ({ contacts, deals }) => {
     setSelectedContact(null);
     setAnalysis(null);
   }
+
+  const handleOpenActionPlan = () => {
+      if (onNavigate && selectedContact) {
+          onNavigate('actionplan', selectedContact.id);
+      }
+  };
 
   return (
     <div className="relative h-full">
@@ -112,7 +119,7 @@ export const Contacts: React.FC<ContactsProps> = ({ contacts, deals }) => {
                         disabled={loadingAnalysis}
                         className="text-sm bg-purple-600 text-white px-3 py-1.5 rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors"
                     >
-                        {loadingAnalysis ? 'Gerando...' : 'Gerar Plano de Ação'}
+                        {loadingAnalysis ? 'Gerando...' : 'Gerar Análise'}
                     </button>
                 </div>
 
@@ -158,16 +165,21 @@ export const Contacts: React.FC<ContactsProps> = ({ contacts, deals }) => {
                                 className="w-full h-48 p-3 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono text-xs"
                                 value={analysis.emailDraft}
                             />
-                            <button className="mt-2 w-full py-2 bg-white border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 text-sm">
-                                Copiar para Relatório Oficial
-                            </button>
+                            {onNavigate && (
+                                <button 
+                                    onClick={handleOpenActionPlan}
+                                    className="mt-2 w-full py-2 bg-brand-600 border border-transparent text-white font-medium rounded-lg hover:bg-brand-700 text-sm shadow-sm transition-all"
+                                >
+                                    Abrir no Editor de Plano de Ação
+                                </button>
+                            )}
                         </div>
                     </div>
                 ) : (
                     !loadingAnalysis && (
                         <div className="text-center py-8 text-slate-400">
                             <Sparkles className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                            <p className="text-sm">Clique em "Gerar Plano de Ação" para processar dados de campo.</p>
+                            <p className="text-sm">Clique em "Gerar Análise" para processar dados de campo.</p>
                         </div>
                     )
                 )}

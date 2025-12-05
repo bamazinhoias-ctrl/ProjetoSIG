@@ -54,7 +54,7 @@ export const Login: React.FC<LoginProps> = ({ users, onLogin, cesolName }) => {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
         
         {/* Header / Brand */}
-        <div className="bg-slate-900 p-8 flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="bg-slate-900 p-8 flex flex-col items-center justify-center relative overflow-hidden text-center">
           {/* New Brand Gradient Line */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-600 via-brand-400 to-brand-600"></div>
           
@@ -68,15 +68,15 @@ export const Login: React.FC<LoginProps> = ({ users, onLogin, cesolName }) => {
           </div>
           
           <div className="flex flex-col items-center animate-fade-in select-none relative z-10">
-               <div className="flex items-baseline gap-1">
+               <div className="flex flex-wrap justify-center items-baseline gap-1">
                   <span className="text-3xl font-black tracking-tight text-white">SIG</span>
                   <span className="text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600 drop-shadow-sm">CESOL</span>
                </div>
                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.25em] leading-none mt-1">
                  Gestão Integrada
                </span>
-               <div className="mt-3 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700/50">
-                  <p className="text-slate-300 text-xs font-medium">{cesolName}</p>
+               <div className="mt-3 bg-slate-800/50 px-3 py-1 rounded-full border border-slate-700/50 max-w-full">
+                  <p className="text-slate-300 text-xs font-medium truncate max-w-[200px]">{cesolName}</p>
                </div>
           </div>
           
@@ -165,34 +165,6 @@ export const Login: React.FC<LoginProps> = ({ users, onLogin, cesolName }) => {
                         <div>
                             <p className="text-xs font-bold text-slate-700">Presidente</p>
                             <p className="text-[10px] text-slate-500">Gestão Completa</p>
-                        </div>
-                    </div>
-                    <ArrowRight className="w-3 h-3 text-slate-300 group-hover:text-brand-500"/>
-                 </button>
-
-                 <button 
-                    onClick={() => handleDemoLogin('aux')}
-                    className="flex items-center justify-between p-2 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-colors text-left group"
-                 >
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs group-hover:bg-indigo-200">A</div>
-                        <div>
-                            <p className="text-xs font-bold text-slate-700">Aux. Administrativo</p>
-                            <p className="text-[10px] text-slate-500">Empreendimentos & Agenda</p>
-                        </div>
-                    </div>
-                    <ArrowRight className="w-3 h-3 text-slate-300 group-hover:text-brand-500"/>
-                 </button>
-
-                 <button 
-                    onClick={() => handleDemoLogin('asp')}
-                    className="flex items-center justify-between p-2 rounded-lg border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-colors text-left group"
-                 >
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs group-hover:bg-orange-200">T</div>
-                        <div>
-                            <p className="text-xs font-bold text-slate-700">Técnico (ASP)</p>
-                            <p className="text-[10px] text-slate-500">Campo & Fomento</p>
                         </div>
                     </div>
                     <ArrowRight className="w-3 h-3 text-slate-300 group-hover:text-brand-500"/>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Kanban, ShoppingBag, Settings, Layers, Briefcase, LogOut, Calendar, Users, ChevronLeft, ChevronRight, Menu, Moon, Sun, FileText, ClipboardList, Database, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Kanban, ShoppingBag, Settings, Layers, Briefcase, LogOut, Calendar, Users, ChevronLeft, ChevronRight, Menu, Moon, Sun, FileText, ClipboardList, Database, ChevronDown, PenTool } from 'lucide-react';
 import { View, User, UserRole } from '../types';
 
 interface LayoutProps {
@@ -63,6 +63,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
         case 'admin': return 'Financeiro';
         case 'users': return 'Administração';
         case 'empreendimentos': return 'Banco de Dados';
+        case 'actionplan': return 'Planejamento';
         default: return 'Sistema Integrado';
     }
   };
@@ -81,11 +82,12 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
           case 'fomento': return currentUser.role === UserRole.AGENTE_PRODUTIVO;
           case 'cadcidadao': return currentUser.role === UserRole.AGENTE_PRODUTIVO;
           case 'eve': return currentUser.role === UserRole.AGENTE_PRODUTIVO;
+          case 'actionplan': return currentUser.role === UserRole.AGENTE_PRODUTIVO;
           case 'comercial': return currentUser.role === UserRole.AGENTE_VENDA || currentUser.role === UserRole.COORD_ADMIN;
           case 'admin': return currentUser.role === UserRole.COORD_ADMIN;
           case 'users': return currentUser.role === UserRole.COORD_ADMIN;
-          // New Permission Logic for Empreendimentos
-          case 'empreendimentos': return currentUser.role === UserRole.AUX_ADMIN || currentUser.role === UserRole.AGENTE_VENDA;
+          // Updated Access: COORD_ADMIN and AGENTE_PRODUTIVO can see Empreendimentos
+          case 'empreendimentos': return currentUser.role === UserRole.AUX_ADMIN || currentUser.role === UserRole.AGENTE_VENDA || currentUser.role === UserRole.COORD_ADMIN || currentUser.role === UserRole.AGENTE_PRODUTIVO;
           default: return false;
       }
   };
@@ -94,14 +96,14 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
     <div className={`flex h-screen overflow-hidden ${isDarkMode ? 'dark' : ''} bg-slate-50 dark:bg-slate-950 transition-colors duration-300`}>
       {/* Sidebar - Dark Mode & Collapsible */}
       <aside 
-        className={`bg-slate-900 border-r border-slate-800 flex flex-col z-20 shadow-2xl transition-all duration-300 ease-in-out relative
+        className={`bg-slate-900 border-r border-slate-800 flex flex-col z-50 shadow-2xl transition-all duration-300 ease-in-out relative shrink-0
           ${isCollapsed ? 'w-20' : 'w-72'}
         `}
       >
         {/* Toggle Button */}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-9 bg-slate-800 text-slate-400 border border-slate-700 rounded-full p-1 shadow-md hover:text-white hover:bg-brand-500 transition-colors z-30"
+          className="absolute -right-3 top-9 bg-slate-800 text-slate-400 border border-slate-700 rounded-full p-1 shadow-md hover:text-white hover:bg-brand-500 transition-colors z-50 flex items-center justify-center"
         >
           {isCollapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
         </button>
@@ -181,6 +183,8 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
             {isCollapsed ? '...' : 'Operacional'}
           </div>
           
+          {/* New Order: Fomento -> CadCidadão -> EVE -> Plano de Ação */}
+          
           {checkAccess('fomento') && (
             <NavItem 
                 icon={Kanban} 
@@ -211,6 +215,18 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
               />
           )}
 
+          {checkAccess('actionplan') && (
+            <NavItem 
+                icon={PenTool} 
+                label="Planos de Ação (Docs)" 
+                isActive={currentView === 'actionplan'} 
+                isCollapsed={isCollapsed}
+                onClick={() => onNavigate('actionplan')} 
+            />
+          )}
+
+          {/* Section: Comercial / Admin */}
+          
           {checkAccess('comercial') && (
             <NavItem 
               icon={ShoppingBag} 
@@ -280,20 +296,25 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
       </aside>
 
       {/* Main Content Area - Solid Background & Fixed Header */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300 min-w-0">
         
         {/* Fixed Header */}
-        <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 py-4 flex justify-between items-center shadow-sm z-30 shrink-0">
+        <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 md:px-8 py-4 flex justify-between items-center shadow-sm z-30 shrink-0">
             <div className="flex items-center gap-4">
               {/* Mobile Menu Trigger */}
-              <Menu className="w-6 h-6 text-slate-400 lg:hidden" />
+              <button 
+                className="lg:hidden p-1 text-slate-400 hover:text-slate-600"
+                onClick={() => setIsCollapsed(!isCollapsed)}
+              >
+                  <Menu className="w-6 h-6" />
+              </button>
               
               {/* Modern Header Titles */}
               <div className="flex flex-col">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-0.5 animate-fade-in">
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-0.5 animate-fade-in hidden sm:block">
                       {getContextLabel(currentView)}
                   </span>
-                  <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100 capitalize tracking-tight transition-colors leading-none">
+                  <h1 className="text-lg md:text-xl font-bold text-slate-800 dark:text-slate-100 capitalize tracking-tight transition-colors leading-none truncate max-w-[200px] sm:max-w-none">
                   {currentView === 'fomento' ? 'Fomento' : 
                   currentView === 'cadcidadao' ? 'CadCidadão' :
                   currentView === 'eve' ? 'Estudo de Viabilidade (EVE)' :
@@ -303,6 +324,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
                   currentView === 'users' ? 'Gestão de Equipe & RH' :
                   currentView === 'empreendimentos' ? 'Gestão de Empreendimentos' :
                   currentView === 'settings' ? 'Perfil' :
+                  currentView === 'actionplan' ? 'Plano de Ação (Docs)' :
                   'Dashboard'}
                   </h1>
               </div>
@@ -324,13 +346,13 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
               </div>
               <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 transition-colors shadow-sm">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/40"></span>
-                  Online
+                  <span className="hidden sm:inline">Online</span>
               </div>
             </div>
         </header>
         
         {/* Scrollable Content Container */}
-        <div className="flex-1 overflow-y-auto p-8 pt-6 pb-20 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-8 pt-4 lg:pt-6 pb-20 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
           {children}
         </div>
       </main>

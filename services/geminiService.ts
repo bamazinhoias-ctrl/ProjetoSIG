@@ -38,54 +38,51 @@ export const generateLeadAnalysis = async (contact: Contact, deal?: Deal): Promi
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            score: { type: Type.INTEGER, description: "Score de Maturidade (0-100)" },
-            summary: { type: Type.STRING, description: "Diagnóstico técnico curto" },
-            suggestedAction: { type: Type.STRING, description: "Ação sugerida para o ASP" },
-            emailDraft: { type: Type.STRING, description: "Texto do Plano de Ação Estratégico" }
-          },
-          required: ["score", "summary", "suggestedAction", "emailDraft"]
+            score: { type: Type.NUMBER },
+            summary: { type: Type.STRING },
+            suggestedAction: { type: Type.STRING },
+            emailDraft: { type: Type.STRING },
+          }
         }
       }
     });
 
-    if (response.text) {
-        return JSON.parse(response.text) as AIAnalysis;
-    }
-    throw new Error("No response text generated");
+    const text = response.text || "{}";
+    // Cleanup markdown if present (though responseMimeType should handle it, redundancy is good)
+    const jsonString = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(jsonString) as AIAnalysis;
+
   } catch (error) {
-    console.error("Gemini Analysis Failed:", error);
+    console.error("Erro na IA:", error);
     return {
-      score: 0,
-      summary: "Não foi possível analisar os dados de campo.",
-      suggestedAction: "Verificar conexão com a Central.",
-      emailDraft: ""
+      score: 50,
+      summary: "Não foi possível gerar análise automática no momento.",
+      suggestedAction: "Realizar diagnóstico manual.",
+      emailDraft: "Erro ao conectar com a IA."
     };
   }
 };
 
 export const generatePipelineInsights = async (deals: Deal[]): Promise<string> => {
-  const model = "gemini-2.5-flash";
+    const model = "gemini-2.5-flash";
+    const prompt = `
+      Analise este pipeline de fomento do CESOL.
+      Total de Atendimentos: ${deals.length}
+      
+      Dados:
+      ${deals.map(d => `- ${d.title} (${d.stage}) - Probabilidade: ${d.probability}%`).join('\n')}
   
-  const dealsSummary = deals.map(d => `${d.title} (${d.stage})`).join('\n');
-
-  const prompt = `
-    Você é o Coordenador Geral do CESOL. Analise o fluxo de atendimento (Kanban) dos Agentes de Fomento (ASPs).
-    Dê um resumo executivo de 3 pontos sobre gargalos no fluxo, focando em:
-    1. Acúmulo de visitas na fase de Coleta (Tablet).
-    2. Pendências de Aprovação (Gestão).
-    3. Sugestão de alocação de equipe.
-    
-    Dados do Kanban:
-    ${dealsSummary}
-  `;
-
-  try {
-    const response = await ai.models.generateContent({
-      model,
-      contents: prompt,
-    });
-    return response.text || "Sem insights disponíveis.";
-  } catch (e) {
-    return "Falha ao gerar relatório de gestão.";
-  }
-};
+      Forneça um insight curto (max 3 frases) para o Coordenador sobre onde focar esforços esta semana.
+    `;
+  
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: prompt
+      });
+      return response.text || "Sem insights disponíveis.";
+    } catch (error) {
+      console.error(error);
+      return "Erro ao gerar insights.";
+    }
+  };

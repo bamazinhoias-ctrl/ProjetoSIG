@@ -63,7 +63,7 @@ export const Profile: React.FC<ProfileProps> = ({ user, deals, contacts, isOwnPr
   };
 
   return (
-    <div className="animate-fade-in max-w-6xl mx-auto space-y-8 pb-10">
+    <div className="animate-fade-in space-y-8 pb-10">
       
       {/* Profile Header */}
       <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">

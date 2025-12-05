@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, AreaChart, Area, PieChart, Pie, Legend } from 'recharts';
-import { Deal, DealStage, User, UserRole, Contact } from '../types';
+import { Deal, DealStage, User, UserRole, Contact, View } from '../types';
 import { Calendar, Tablet, FileText, CheckCircle2, UserCheck, LayoutDashboard, Briefcase, DollarSign, ShoppingBag, Target, TrendingUp, Package, Users, ArrowUpRight, ArrowDownRight, Wallet, AlertCircle, Clock, CheckCircle } from 'lucide-react';
 
 interface DashboardProps {
@@ -9,9 +9,10 @@ interface DashboardProps {
   users: User[];
   currentUser: User;
   contacts?: Contact[]; // Added contacts to prop to display names in ASP table
+  onNavigate: (view: View) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, users, currentUser, contacts }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, users, currentUser, contacts, onNavigate }) => {
   const isManager = currentUser.role === UserRole.PRESIDENTE || currentUser.role === UserRole.COORD_GERAL;
   const isAdminCoord = currentUser.role === UserRole.COORD_ADMIN;
   const isSales = currentUser.role === UserRole.AGENTE_VENDA;
@@ -476,7 +477,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, user
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <Clock className="w-5 h-5 text-slate-500"/> Monitoramento de Atividades
                     </h3>
-                    <button className="text-xs font-bold text-brand-600 hover:underline">Ver Agenda Completa</button>
+                    <button 
+                        onClick={() => onNavigate('agenda')}
+                        className="text-xs font-bold text-brand-600 hover:underline"
+                    >
+                        Ver Agenda Completa
+                    </button>
                 </div>
                 
                 <div className="flex-1 overflow-x-auto">
@@ -539,7 +545,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ deals, totalContacts, user
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <button className="text-xs font-bold text-slate-400 hover:text-brand-600 border border-slate-200 hover:border-brand-300 px-3 py-1 rounded bg-white transition-all shadow-sm">
+                                                <button 
+                                                    onClick={() => onNavigate('fomento')}
+                                                    className="text-xs font-bold text-slate-400 hover:text-brand-600 border border-slate-200 hover:border-brand-300 px-3 py-1 rounded bg-white transition-all shadow-sm"
+                                                >
                                                     Detalhes
                                                 </button>
                                             </td>

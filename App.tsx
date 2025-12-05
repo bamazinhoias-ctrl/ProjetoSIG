@@ -12,6 +12,7 @@ import { Profile } from './pages/Profile';
 import { CadCidadao } from './pages/CadCidadao';
 import { EVE } from './pages/EVE';
 import { Empreendimentos } from './pages/Empreendimentos';
+import { ActionPlan } from './pages/ActionPlan'; // Import ActionPlan page
 import { Contact, Deal, DealStage, View, ActivityType, Appointment, AppointmentType, User, UserRole, Product } from './types';
 
 // Mock Data Initialization (SIG-CESOL Context)
@@ -39,7 +40,7 @@ const INITIAL_USERS: User[] = [
     password: '123',
     role: UserRole.COORD_ADMIN, 
     avatar: 'https://ui-avatars.com/api/?name=Ana+Financeiro&background=random&color=fff&background=7c3aed',
-    permissions: ['admin', 'comercial']
+    permissions: ['admin', 'comercial', 'users', 'empreendimentos', 'edit_empreendimentos'] // Full Admin Suite
   },
   {
     id: '2',
@@ -48,7 +49,7 @@ const INITIAL_USERS: User[] = [
     password: '123',
     role: UserRole.AGENTE_PRODUTIVO,
     avatar: 'https://ui-avatars.com/api/?name=Joao+ASP&background=random',
-    permissions: ['agenda', 'fomento', 'cadcidadao', 'eve']
+    permissions: ['agenda', 'fomento', 'cadcidadao', 'eve', 'empreendimentos', 'edit_empreendimentos', 'actionplan']
   },
   {
     id: '3',
@@ -57,7 +58,7 @@ const INITIAL_USERS: User[] = [
     password: '123',
     role: UserRole.AGENTE_PRODUTIVO,
     avatar: 'https://ui-avatars.com/api/?name=Ana+ASP&background=random',
-    permissions: ['agenda', 'fomento', 'cadcidadao', 'eve']
+    permissions: ['agenda', 'fomento', 'cadcidadao', 'eve', 'empreendimentos', 'edit_empreendimentos', 'actionplan']
   },
   {
     id: '4',
@@ -75,7 +76,7 @@ const INITIAL_USERS: User[] = [
     password: '123',
     role: UserRole.AUX_ADMIN,
     avatar: 'https://ui-avatars.com/api/?name=Julia+Aux&background=random',
-    permissions: ['empreendimentos', 'agenda']
+    permissions: ['empreendimentos', 'agenda', 'edit_empreendimentos']
   }
 ];
 
@@ -95,7 +96,15 @@ const INITIAL_CONTACTS: Contact[] = [
     womenCount: 15,
     menCount: 2,
     mainProduct: 'Biojóias de Piaçava',
-    cnpj: '00.000.000/0001-00'
+    cnpj: '00.000.000/0001-00',
+    ownerId: '2',
+    situation: 'Em funcionamento',
+    organization: 'Associação',
+    cadsol: true,
+    partners: [
+        { id: '1', name: 'Maria da Silva', gender: 'Feminino', role: 'Presidente' },
+        { id: '2', name: 'Joana Souza', gender: 'Feminino', role: 'Tesoureira' }
+    ]
   },
   {
     id: '2',
@@ -112,7 +121,11 @@ const INITIAL_CONTACTS: Contact[] = [
     womenCount: 5,
     menCount: 8,
     mainProduct: 'Mel Orgânico',
-    cnpj: '11.111.111/0001-11'
+    cnpj: '11.111.111/0001-11',
+    ownerId: '3',
+    situation: 'Em funcionamento',
+    organization: 'Cooperativa',
+    cadsol: true
   },
   {
     id: '3',
@@ -128,7 +141,10 @@ const INITIAL_CONTACTS: Contact[] = [
     zone: 'Urbana',
     womenCount: 1,
     menCount: 0,
-    mainProduct: 'Bolo de Rolo'
+    mainProduct: 'Bolo de Rolo',
+    situation: 'Em funcionamento',
+    organization: 'Grupo Informal',
+    cadsol: false
   },
   {
     id: '4',
@@ -144,7 +160,11 @@ const INITIAL_CONTACTS: Contact[] = [
     zone: 'Rural',
     womenCount: 8,
     menCount: 0,
-    mainProduct: 'Costura Criativa'
+    mainProduct: 'Costura Criativa',
+    ownerId: '2',
+    situation: 'Em reestruturação',
+    organization: 'Grupo Informal',
+    cadsol: false
   }
 ];
 
@@ -253,6 +273,10 @@ export default function App() {
   };
   
   const [view, setView] = useState<View>('dashboard');
+  
+  // Navigation State with Context
+  const [targetContactId, setTargetContactId] = useState<string | null>(null);
+
   const [contacts, setContacts] = useState<Contact[]>(INITIAL_CONTACTS);
   const [deals, setDeals] = useState<Deal[]>(INITIAL_DEALS);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
@@ -281,9 +305,11 @@ export default function App() {
         case 'fomento': return user.role === UserRole.AGENTE_PRODUTIVO;
         case 'cadcidadao': return user.role === UserRole.AGENTE_PRODUTIVO;
         case 'eve': return user.role === UserRole.AGENTE_PRODUTIVO;
+        case 'actionplan': return user.role === UserRole.AGENTE_PRODUTIVO;
         case 'admin': return user.role === UserRole.COORD_ADMIN;
-        // New Permission
-        case 'empreendimentos': return user.role === UserRole.AUX_ADMIN || user.role === UserRole.AGENTE_VENDA;
+        case 'users': return user.role === UserRole.COORD_ADMIN;
+        // Access for Empreendimentos: ASP, AUX, Sales, Admin Coord
+        case 'empreendimentos': return user.role === UserRole.AUX_ADMIN || user.role === UserRole.AGENTE_VENDA || user.role === UserRole.AGENTE_PRODUTIVO || user.role === UserRole.COORD_ADMIN;
         default: return false;
     }
   };
@@ -307,6 +333,21 @@ export default function App() {
     setCurrentUser(null);
     setProfileUser(null);
     setView('dashboard'); 
+  };
+
+  // Specialized Navigation Handler
+  const handleNavigate = (nextView: View, contextId?: string) => {
+      if (contextId) {
+          setTargetContactId(contextId);
+      } else {
+          setTargetContactId(null);
+      }
+      
+      if (nextView === 'settings') {
+         handleViewMyProfile();
+      } else {
+         setView(nextView);
+      }
   };
 
   const handleAddUser = (newUser: User) => {
@@ -363,6 +404,38 @@ export default function App() {
     }
   };
 
+  // --- AUTOMATED PIPELINE ADVANCEMENT ---
+  const handleTaskCompletion = (contactId: string, taskType: 'EVE' | 'CAD' | 'PLAN') => {
+      setDeals(prevDeals => {
+          let updated = false;
+          const newDeals = prevDeals.map(deal => {
+              if (deal.contactId === contactId) {
+                  // Logic: EVE (Coleta EVE -> Coleta CAD)
+                  if (taskType === 'EVE' && deal.stage === DealStage.COLETA_EVE) {
+                      updated = true;
+                      return { ...deal, stage: DealStage.COLETA_CAD, probability: deal.probability + 20 };
+                  }
+                  // Logic: CAD (Coleta CAD -> Plano de Ação)
+                  if (taskType === 'CAD' && deal.stage === DealStage.COLETA_CAD) {
+                      updated = true;
+                      return { ...deal, stage: DealStage.PLANO_ACAO, probability: deal.probability + 20 };
+                  }
+                  // Logic: PLAN (Plano de Ação -> Aprovação)
+                  if (taskType === 'PLAN' && deal.stage === DealStage.PLANO_ACAO) {
+                      updated = true;
+                      return { ...deal, stage: DealStage.APROVACAO, probability: 90 };
+                  }
+              }
+              return deal;
+          });
+
+          if (updated) {
+              alert(`Status do atendimento atualizado automaticamente no Fomento!`);
+          }
+          return newDeals;
+      });
+  };
+
   const handleAddContact = (contact: Contact) => {
       setContacts([...contacts, contact]);
   }
@@ -410,14 +483,7 @@ export default function App() {
   return (
     <Layout 
       currentView={view} 
-      onNavigate={(v) => {
-          if (v === 'settings') {
-             // Reusing Profile as a "Settings/Profile" view for now or navigate to My Profile
-             handleViewMyProfile();
-          } else {
-             setView(v);
-          }
-      }} 
+      onNavigate={handleNavigate}
       onLogout={handleLogout} 
       currentUser={currentUser}
       cesolName={cesolName}
@@ -431,6 +497,7 @@ export default function App() {
           users={users} 
           currentUser={currentUser}
           contacts={contacts} 
+          onNavigate={handleNavigate}
         />
       )}
       
@@ -452,15 +519,24 @@ export default function App() {
           currentUser={currentUser}
           onUpdateDeal={handleUpdateDeal}
           onSelectDeal={handleSelectDeal}
+          onNavigate={handleNavigate} // Pass navigation to Pipeline for DealCards
         />
       )}
 
       {view === 'cadcidadao' && (
-        <CadCidadao />
+        <CadCidadao 
+            contacts={contacts} 
+            onComplete={(contactId) => handleTaskCompletion(contactId, 'CAD')}
+            initialContactId={targetContactId || undefined}
+        />
       )}
 
       {view === 'eve' && (
-        <EVE />
+        <EVE 
+            contacts={contacts} 
+            onComplete={(contactId) => handleTaskCompletion(contactId, 'EVE')}
+            initialContactId={targetContactId || undefined}
+        />
       )}
       
       {view === 'comercial' && (
@@ -497,7 +573,14 @@ export default function App() {
 
       {view === 'empreendimentos' && hasAccess('empreendimentos', currentUser) && (
         <Empreendimentos 
-            contacts={contacts}
+            contacts={currentUser.role === UserRole.AGENTE_PRODUTIVO 
+              ? contacts.filter(c => 
+                  c.ownerId === currentUser.id || 
+                  deals.some(d => d.contactId === c.id && d.assigneeId === currentUser.id) ||
+                  appointments.some(a => a.contactId === c.id && a.assigneeId === currentUser.id)
+                )
+              : contacts
+            }
             users={users}
             onAddContact={handleAddContact}
             onUpdateContact={handleUpdateContact}
@@ -506,6 +589,15 @@ export default function App() {
         />
       )}
       
+      {view === 'actionplan' && hasAccess('actionplan', currentUser) && (
+          <ActionPlan 
+            contacts={contacts} 
+            currentUserRole={currentUser.role} 
+            onComplete={(contactId) => handleTaskCompletion(contactId, 'PLAN')}
+            initialContactId={targetContactId || undefined}
+          />
+      )}
+
       {view === 'profile' && profileUser && (
         <Profile 
             user={profileUser} 
@@ -517,7 +609,11 @@ export default function App() {
       )}
       
       {(view === 'contacts') && (
-        <Contacts contacts={contacts} deals={deals} />
+        <Contacts 
+            contacts={contacts} 
+            deals={deals} 
+            onNavigate={handleNavigate}
+        />
       )}
     </Layout>
   );

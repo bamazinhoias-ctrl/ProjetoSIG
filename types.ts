@@ -1,4 +1,3 @@
-
 export enum DealStage {
   AGENDAMENTO = 'Agendamento',
   COLETA_EVE = 'Coleta EVE',
@@ -69,6 +68,13 @@ export interface Appointment {
   notes?: string;
 }
 
+export interface Partner {
+  id: string;
+  name: string;
+  role: string; // e.g. Sócio, Presidente
+  gender: 'Masculino' | 'Feminino' | 'Outro';
+}
+
 export interface Contact {
   id: string;
   name: string; // Nome do Representante
@@ -91,6 +97,13 @@ export interface Contact {
   representativeRole?: string; // Cargo no empreendimento
   registeredByRole?: string; // Cargo de quem cadastrou
   registeredDate?: string;
+  ownerId?: string; // ID of the user who registered or owns this contact
+
+  // Campos EVE / CadCidadão Sincronizados
+  cadsol?: boolean;
+  situation?: string; // 'Em funcionamento', 'Em implantação', etc.
+  organization?: string; // 'Grupo Informal', 'Associação', etc.
+  partners?: Partner[]; // Tabela de Sócios
 }
 
 export interface Deal {
@@ -112,4 +125,25 @@ export interface AIAnalysis {
   emailDraft: string;
 }
 
-export type View = 'dashboard' | 'agenda' | 'fomento' | 'cadcidadao' | 'eve' | 'comercial' | 'admin' | 'settings' | 'contacts' | 'users' | 'profile' | 'empreendimentos';
+// --- NEW FINANCIAL TYPES ---
+export type TransactionType = 'Receita' | 'Despesa';
+export type TransactionStatus = 'Pendente' | 'Aprovado' | 'Pago' | 'Rejeitado';
+export type TransactionCategory = 'Operacional' | 'Pessoal' | 'Materiais' | 'Transporte' | 'Serviços' | 'Vendas' | 'Repasse' | 'Outros';
+
+export interface Transaction {
+  id: string;
+  description: string;
+  type: TransactionType;
+  category: TransactionCategory;
+  value: number;
+  date: string;
+  status: TransactionStatus;
+  requesterId: string; // User ID
+  requesterName: string;
+  approverId?: string; // User ID
+  approvedDate?: string;
+  attachmentUrl?: string;
+  notes?: string;
+}
+
+export type View = 'dashboard' | 'agenda' | 'fomento' | 'cadcidadao' | 'eve' | 'comercial' | 'admin' | 'settings' | 'contacts' | 'users' | 'profile' | 'empreendimentos' | 'actionplan';
