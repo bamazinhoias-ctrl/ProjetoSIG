@@ -2,6 +2,64 @@ import React, { useState } from 'react';
 import { Contact, Appointment, User, UserRole, ActivityType } from '../types';
 import { Plus, Search, MapPin, Edit, X, Building2, Trash2 } from 'lucide-react';
 
+// --- STYLED COMPONENTS FOR EXACT MATCH ---
+
+interface LabelProps {
+  children: React.ReactNode;
+}
+const Label: React.FC<LabelProps> = ({ children }) => (
+    <label className="block text-[11px] font-bold text-[#666] mb-1.5">{children}</label>
+);
+
+const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+    <input 
+      {...props}
+      className="w-full bg-[#f0f4f8] text-[#333] text-sm h-10 px-3 rounded-sm border-none outline-none focus:ring-1 focus:ring-blue-300 placeholder:text-gray-400"
+    />
+);
+
+const Select = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => (
+    <div className="relative">
+      <select 
+          {...props}
+          className="w-full bg-white border border-gray-200 text-[#333] text-sm h-10 px-3 pr-8 rounded-sm outline-none focus:ring-1 focus:ring-blue-300 appearance-none font-medium uppercase"
+      />
+      <div className="absolute right-3 top-3 pointer-events-none">
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1L5 5L9 1" stroke="#333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+      </div>
+    </div>
+);
+
+interface RadioBlockProps {
+  label: string;
+  children: React.ReactNode;
+}
+const RadioBlock: React.FC<RadioBlockProps> = ({ label, children }) => (
+    <div className="bg-[#f0f4f8] p-4 rounded-sm mb-4">
+        <Label>{label}</Label>
+        <div className="mt-2">
+          {children}
+        </div>
+    </div>
+);
+
+interface CustomRadioProps {
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}
+const CustomRadio: React.FC<CustomRadioProps> = ({ label, checked, onChange }) => (
+    <label className="flex items-center gap-2 cursor-pointer group mb-2 last:mb-0">
+        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${checked ? 'border-[#5c7cfa] bg-[#5c7cfa]' : 'border-[#a0aec0] bg-white'}`}>
+            {/* No inner dot needed if full fill style, but let's do inner white dot for standard radio look or full fill based on image interpretation. Image looks solid blue. */}
+        </div>
+        <input type="radio" className="hidden" checked={checked} onChange={onChange} />
+        <span className={`text-sm ${checked ? 'text-[#333] font-medium' : 'text-[#555]'}`}>{label}</span>
+    </label>
+);
+
 interface EmpreendimentosProps {
   contacts: Contact[];
   users: User[];
@@ -76,52 +134,6 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
         setIsModalOpen(false);
     }
   };
-
-  // --- STYLED COMPONENTS FOR EXACT MATCH ---
-  
-  const Label = ({ children }: { children: React.ReactNode }) => (
-      <label className="block text-[11px] font-bold text-[#666] mb-1.5">{children}</label>
-  );
-
-  const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-      <input 
-        {...props}
-        className="w-full bg-[#f0f4f8] text-[#333] text-sm h-10 px-3 rounded-sm border-none outline-none focus:ring-1 focus:ring-blue-300 placeholder:text-gray-400"
-      />
-  );
-
-  const Select = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => (
-      <div className="relative">
-        <select 
-            {...props}
-            className="w-full bg-white border border-gray-200 text-[#333] text-sm h-10 px-3 pr-8 rounded-sm outline-none focus:ring-1 focus:ring-blue-300 appearance-none font-medium uppercase"
-        />
-        <div className="absolute right-3 top-3 pointer-events-none">
-            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="#333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-        </div>
-      </div>
-  );
-
-  const RadioBlock = ({ label, children }: { label: string, children: React.ReactNode }) => (
-      <div className="bg-[#f0f4f8] p-4 rounded-sm mb-4">
-          <Label>{label}</Label>
-          <div className="mt-2">
-            {children}
-          </div>
-      </div>
-  );
-
-  const CustomRadio = ({ label, checked, onChange }: { label: string, checked: boolean, onChange: () => void }) => (
-      <label className="flex items-center gap-2 cursor-pointer group mb-2 last:mb-0">
-          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${checked ? 'border-[#5c7cfa] bg-[#5c7cfa]' : 'border-[#a0aec0] bg-white'}`}>
-              {/* No inner dot needed if full fill style, but let's do inner white dot for standard radio look or full fill based on image interpretation. Image looks solid blue. */}
-          </div>
-          <input type="radio" className="hidden" checked={checked} onChange={onChange} />
-          <span className={`text-sm ${checked ? 'text-[#333] font-medium' : 'text-[#555]'}`}>{label}</span>
-      </label>
-  );
 
   return (
     <div className="space-y-6 animate-fade-in">
