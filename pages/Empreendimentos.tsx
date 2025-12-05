@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Contact, Appointment, AppointmentType, User, UserRole, ActivityType, Partner } from '../types';
-import { Plus, Search, MapPin, Phone, Edit, Calendar as CalendarIcon, X, Building2, Save, User as UserIcon, LayoutGrid, ClipboardList, Trash2, Users } from 'lucide-react';
+import { Contact, Appointment, User, UserRole, ActivityType } from '../types';
+import { Plus, Search, MapPin, Edit, X, Building2, Trash2 } from 'lucide-react';
 
 interface EmpreendimentosProps {
   contacts: Contact[];
@@ -13,10 +13,8 @@ interface EmpreendimentosProps {
 
 export const Empreendimentos: React.FC<EmpreendimentosProps> = ({ 
   contacts, 
-  users, 
   onAddContact, 
   onUpdateContact,
-  onAddAppointment,
   currentUser
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,7 +32,7 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
     company: '', address: '', neighborhood: '', zip: '', city: 'SALVADOR', state: 'BA', zone: 'Urbana', 
     phone: '', cellphone: '', email: '', cnpj: '',
     role: ActivityType.ARTESANATO, mainProduct: '', 
-    menCount: 3, womenCount: 1, // Default from image example
+    menCount: 3, womenCount: 1,
     name: '', cpf: '', representativeRole: '',
     cadsol: true, situation: 'Em funcionamento', organization: 'Grupo Informal', partners: [],
     registeredByRole: '', registeredDate: new Date().toISOString().split('T')[0], notes: ''
@@ -79,35 +77,54 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
     }
   };
 
-  // Reusable Input Component to match image style
-  const FormInput = ({ label, value, onChange, placeholder, type = 'text', className = '' }: any) => (
-      <div className={`mb-3 ${className}`}>
-          <label className="block text-xs font-bold text-slate-500 mb-1">{label}</label>
-          <input 
-            type={type}
-            className="w-full bg-[#f0f4f8] text-slate-700 text-sm p-2.5 rounded border-none focus:ring-1 focus:ring-brand-400 focus:bg-white transition-colors"
-            value={value || ''}
-            onChange={onChange}
-            placeholder={placeholder}
-          />
+  // --- STYLED COMPONENTS FOR EXACT MATCH ---
+  
+  const Label = ({ children }: { children: React.ReactNode }) => (
+      <label className="block text-[11px] font-bold text-[#666] mb-1.5">{children}</label>
+  );
+
+  const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
+      <input 
+        {...props}
+        className="w-full bg-[#f0f4f8] text-[#333] text-sm h-10 px-3 rounded-sm border-none outline-none focus:ring-1 focus:ring-blue-300 placeholder:text-gray-400"
+      />
+  );
+
+  const Select = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => (
+      <div className="relative">
+        <select 
+            {...props}
+            className="w-full bg-white border border-gray-200 text-[#333] text-sm h-10 px-3 pr-8 rounded-sm outline-none focus:ring-1 focus:ring-blue-300 appearance-none font-medium uppercase"
+        />
+        <div className="absolute right-3 top-3 pointer-events-none">
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="#333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+        </div>
       </div>
   );
 
-  const FormSelect = ({ label, value, onChange, options, className = '' }: any) => (
-      <div className={`mb-3 ${className}`}>
-          <label className="block text-xs font-bold text-slate-500 mb-1">{label}</label>
-          <select 
-            className="w-full bg-[#f0f4f8] text-slate-700 text-sm p-2.5 rounded border-none focus:ring-1 focus:ring-brand-400 focus:bg-white transition-colors appearance-none"
-            value={value || ''}
-            onChange={onChange}
-          >
-              {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
-          </select>
+  const RadioBlock = ({ label, children }: { label: string, children: React.ReactNode }) => (
+      <div className="bg-[#f0f4f8] p-4 rounded-sm mb-4">
+          <Label>{label}</Label>
+          <div className="mt-2">
+            {children}
+          </div>
       </div>
+  );
+
+  const CustomRadio = ({ label, checked, onChange }: { label: string, checked: boolean, onChange: () => void }) => (
+      <label className="flex items-center gap-2 cursor-pointer group mb-2 last:mb-0">
+          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${checked ? 'border-[#5c7cfa] bg-[#5c7cfa]' : 'border-[#a0aec0] bg-white'}`}>
+              {/* No inner dot needed if full fill style, but let's do inner white dot for standard radio look or full fill based on image interpretation. Image looks solid blue. */}
+          </div>
+          <input type="radio" className="hidden" checked={checked} onChange={onChange} />
+          <span className={`text-sm ${checked ? 'text-[#333] font-medium' : 'text-[#555]'}`}>{label}</span>
+      </label>
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header & Search */}
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
@@ -162,152 +179,163 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
         </div>
       </div>
 
-      {/* MODAL - FAITHFUL REPRODUCTION */}
+      {/* MODAL - PIXEL PERFECT TO IMAGE */}
       {isModalOpen && canEdit && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-            <div className="relative bg-white shadow-2xl w-full max-w-3xl max-h-[95vh] flex flex-col overflow-hidden animate-scale-in border border-slate-200">
-                {/* No Header in Image, just form content, but for UX we keep a minimal close button or rely on bottom actions */}
+            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)} />
+            <div className="relative bg-white shadow-2xl w-full max-w-3xl h-[90vh] md:h-auto md:max-h-[95vh] flex flex-col overflow-hidden animate-scale-in rounded-sm">
                 
-                <div className="flex-1 overflow-y-auto p-8 bg-white">
+                {/* Close Button - Top Right (Hidden in Image but needed for UX, kept subtle) */}
+                <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 z-10">
+                    <X className="w-5 h-5" />
+                </button>
+
+                <div className="flex-1 overflow-y-auto p-8 md:p-10">
                     <form id="enterpriseForm" onSubmit={handleSubmitContact} className="space-y-4">
                         
-                        <FormInput 
-                            label="Nome do Empreendimento" 
-                            value={contactForm.company} 
-                            onChange={(e: any) => setContactForm({...contactForm, company: e.target.value})}
-                        />
+                        <div className="mb-4">
+                            <Label>Nome do Empreendimento</Label>
+                            <Input value={contactForm.company} onChange={(e) => setContactForm({...contactForm, company: e.target.value})} />
+                        </div>
 
-                        <FormInput 
-                            label="Atividade" 
-                            value={contactForm.role} 
-                            onChange={(e: any) => setContactForm({...contactForm, role: e.target.value})}
-                        />
+                        <div className="mb-4">
+                            <Label>Atividade</Label>
+                            <Input value={contactForm.role} onChange={(e) => setContactForm({...contactForm, role: e.target.value})} />
+                        </div>
 
-                        <FormInput 
-                            label="CNPJ" 
-                            value={contactForm.cnpj} 
-                            onChange={(e: any) => setContactForm({...contactForm, cnpj: e.target.value})}
-                        />
+                        <div className="mb-4">
+                            <Label>CNPJ</Label>
+                            <Input value={contactForm.cnpj} onChange={(e) => setContactForm({...contactForm, cnpj: e.target.value})} />
+                        </div>
 
-                        {/* CADSOL Radio */}
-                        <div className="bg-[#f0f4f8] p-4 rounded mb-4">
-                            <label className="block text-xs font-bold text-slate-500 mb-2">O empreendimento está cadastrado no CADSOL?</label>
+                        <RadioBlock label="O empreendimento está cadastrado no CADSOL?">
                             <div className="flex gap-6">
-                                <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
-                                    <input type="radio" checked={contactForm.cadsol === true} onChange={() => setContactForm({...contactForm, cadsol: true})} className="w-4 h-4 text-[#5c7cfa]" /> Sim
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
-                                    <input type="radio" checked={contactForm.cadsol === false} onChange={() => setContactForm({...contactForm, cadsol: false})} className="w-4 h-4 text-[#5c7cfa]" /> Não
-                                </label>
+                                <CustomRadio label="Sim" checked={contactForm.cadsol === true} onChange={() => setContactForm({...contactForm, cadsol: true})} />
+                                <CustomRadio label="Não" checked={contactForm.cadsol === false} onChange={() => setContactForm({...contactForm, cadsol: false})} />
+                            </div>
+                        </RadioBlock>
+
+                        <div className="mb-4">
+                            <Label>Endereço</Label>
+                            <Input value={contactForm.address} onChange={(e) => setContactForm({...contactForm, address: e.target.value})} />
+                        </div>
+
+                        <div className="flex gap-4 mb-4">
+                            <div className="w-[60%]">
+                                <Label>Bairro</Label>
+                                <Input value={contactForm.neighborhood} onChange={(e) => setContactForm({...contactForm, neighborhood: e.target.value})} />
+                            </div>
+                            <div className="w-[40%]">
+                                <Label>CEP</Label>
+                                <Input value={contactForm.zip} onChange={(e) => setContactForm({...contactForm, zip: e.target.value})} />
                             </div>
                         </div>
 
-                        <FormInput 
-                            label="Endereço" 
-                            value={contactForm.address} 
-                            onChange={(e: any) => setContactForm({...contactForm, address: e.target.value})}
-                        />
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormInput 
-                                label="Bairro" 
-                                value={contactForm.neighborhood} 
-                                onChange={(e: any) => setContactForm({...contactForm, neighborhood: e.target.value})}
-                            />
-                            <FormInput 
-                                label="CEP" 
-                                value={contactForm.zip} 
-                                onChange={(e: any) => setContactForm({...contactForm, zip: e.target.value})}
-                            />
+                        <div className="flex gap-4 mb-4">
+                            <div className="w-[20%]">
+                                <Select value={contactForm.state} onChange={(e) => setContactForm({...contactForm, state: e.target.value})}>
+                                    <option value="BA">BA</option>
+                                    <option value="SE">SE</option>
+                                </Select>
+                            </div>
+                            <div className="w-[80%]">
+                                <Select value={contactForm.city} onChange={(e) => setContactForm({...contactForm, city: e.target.value})}>
+                                    <option value="SALVADOR">SALVADOR</option>
+                                    <option value="CAMACARI">CAMAÇARI</option>
+                                    <option value="LAURO DE FREITAS">LAURO DE FREITAS</option>
+                                </Select>
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4">
-                            <FormSelect 
-                                label="UF" 
-                                value={contactForm.state} 
-                                options={['BA', 'SE', 'AL', 'PE']}
-                                onChange={(e: any) => setContactForm({...contactForm, state: e.target.value})}
-                                className="col-span-1"
-                            />
-                            <FormSelect 
-                                label="MUNICÍPIO" 
-                                value={contactForm.city} 
-                                options={['SALVADOR', 'LAURO DE FREITAS', 'CAMAÇARI', 'FEIRA DE SANTANA']}
-                                onChange={(e: any) => setContactForm({...contactForm, city: e.target.value})}
-                                className="col-span-2"
-                            />
+                        <div className="flex gap-4 mb-4">
+                            <div className="flex-1">
+                                <Label>Telefone</Label>
+                                <Input value={contactForm.phone} onChange={(e) => setContactForm({...contactForm, phone: e.target.value})} />
+                            </div>
+                            <div className="flex-1">
+                                <Label>Celular</Label>
+                                <Label><span className="text-[10px] font-normal absolute -mt-5 ml-10 text-gray-400"></span></Label> {/* Spacer for visual alignment if needed */}
+                                <Input value={contactForm.cellphone} onChange={(e) => setContactForm({...contactForm, cellphone: e.target.value})} />
+                            </div>
+                            <div className="flex-[1.5]">
+                                <Label>Email</Label>
+                                <Input value={contactForm.email} onChange={(e) => setContactForm({...contactForm, email: e.target.value})} />
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4">
-                            <FormInput 
-                                label="Telefone" 
-                                value={contactForm.phone} 
-                                onChange={(e: any) => setContactForm({...contactForm, phone: e.target.value})}
-                            />
-                            <FormInput 
-                                label="Celular" 
-                                value={contactForm.cellphone} 
-                                onChange={(e: any) => setContactForm({...contactForm, cellphone: e.target.value})}
-                            />
-                            <FormInput 
-                                label="Email" 
-                                value={contactForm.email} 
-                                onChange={(e: any) => setContactForm({...contactForm, email: e.target.value})}
-                            />
-                        </div>
-
-                        {/* Situation Radio */}
-                        <div className="bg-[#f0f4f8] p-4 rounded mb-4">
-                            <label className="block text-xs font-bold text-slate-500 mb-2">Qual a situação atual do empreendimento?</label>
-                            <div className="space-y-2">
+                        <RadioBlock label="Qual a situação atual do empreendimento?">
+                            <div className="flex flex-col gap-2">
                                 {['Em funcionamento', 'Em implantação (ainda não iniciou sua atividade produtiva ou de prestação de serviço)', 'Em reestruturação', 'Outra. Qual?'].map((opt) => (
-                                    <label key={opt} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
-                                        <input 
-                                            type="radio" 
-                                            checked={contactForm.situation === opt.split(' (')[0]} 
-                                            onChange={() => setContactForm({...contactForm, situation: opt.split(' (')[0]})} 
-                                            className="w-4 h-4 text-[#5c7cfa]" 
-                                        /> 
-                                        {opt}
-                                    </label>
+                                    <CustomRadio 
+                                        key={opt}
+                                        label={opt} 
+                                        checked={contactForm.situation === opt.split(' (')[0]} 
+                                        onChange={() => setContactForm({...contactForm, situation: opt.split(' (')[0]})} 
+                                    />
                                 ))}
                             </div>
-                        </div>
+                        </RadioBlock>
 
-                        {/* Partners Count */}
-                        <div>
-                            <label className="block text-xs font-bold text-slate-500 mb-2">Número de sócios</label>
-                            <div className="grid grid-cols-3 gap-4 bg-[#f0f4f8] p-4 rounded">
-                                <div>
-                                    <label className="block text-xs text-slate-500 mb-1">Homens</label>
-                                    <input 
+                        <div className="mb-4">
+                            <Label>Número de sócios</Label>
+                            <div className="flex gap-4 items-end">
+                                <div className="w-24">
+                                    <label className="text-[10px] text-gray-500 mb-1 block">Homens</label>
+                                    <Input 
                                         type="number" 
-                                        className="w-full p-2 bg-white rounded border border-slate-200"
                                         value={contactForm.menCount} 
                                         onChange={e => setContactForm({...contactForm, menCount: parseInt(e.target.value) || 0})}
+                                        className="bg-[#f0f4f8] h-9 w-full px-2 rounded-sm outline-none"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-xs text-slate-500 mb-1">Mulheres</label>
-                                    <input 
+                                <div className="w-24">
+                                    <label className="text-[10px] text-gray-500 mb-1 block">Mulheres</label>
+                                    <Input 
                                         type="number" 
-                                        className="w-full p-2 bg-white rounded border border-slate-200"
                                         value={contactForm.womenCount} 
                                         onChange={e => setContactForm({...contactForm, womenCount: parseInt(e.target.value) || 0})}
+                                        className="bg-[#f0f4f8] h-9 w-full px-2 rounded-sm outline-none"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-xs text-slate-500 mb-1">Total</label>
-                                    <input 
-                                        type="number" 
-                                        disabled
-                                        className="w-full p-2 bg-slate-100 rounded border-none text-slate-500 font-bold"
-                                        value={(contactForm.menCount || 0) + (contactForm.womenCount || 0)} 
-                                    />
-                                    <p className="text-[10px] text-slate-400 mt-1">.................................................</p>
+                                <div className="w-24">
+                                    <label className="text-[10px] text-gray-500 mb-1 block">Total</label>
+                                    <div className="bg-[#f0f4f8] h-9 w-full px-2 flex items-center text-sm text-gray-400 font-bold border-b border-dotted border-gray-400">
+                                        {(contactForm.menCount || 0) + (contactForm.womenCount || 0)}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Organization Radio */}
+                        <RadioBlock label="Forma de Organização:">
+                            <div className="flex flex-col gap-2">
+                                {['Grupo Informal', 'Associação', 'Cooperativa', 'Rede, Central de Associações, Complexo Cooperativo e similares', 'Outra. Qual?'].map((opt) => (
+                                    <CustomRadio 
+                                        key={opt}
+                                        label={opt} 
+                                        checked={contactForm.organization === opt} 
+                                        onChange={() => setContactForm({...contactForm, organization: opt})} 
+                                    />
+                                ))}
+                            </div>
+                        </RadioBlock>
+
+                    </form>
+                </div>
+
+                {/* Footer Buttons Matching Image */}
+                <div className="p-6 bg-white shrink-0 flex justify-center gap-4 border-t border-transparent">
+                    {editingId && (
+                        <button onClick={handleDelete} className="bg-[#6b829e] hover:bg-[#5a6e85] text-white font-bold py-2 px-6 rounded shadow-sm text-sm uppercase flex items-center gap-3 transition-transform active:scale-95">
+                            EXCLUIR <div className="w-2.5 h-2.5 bg-white"></div>
+                        </button>
+                    )}
+                    <button type="submit" form="enterpriseForm" className="bg-[#6b829e] hover:bg-[#5a6e85] text-white font-bold py-2 px-10 rounded shadow-sm text-sm uppercase transition-transform active:scale-95">
+                        SALVAR
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
+    </div>
+  );
+};
