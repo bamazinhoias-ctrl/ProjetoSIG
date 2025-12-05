@@ -136,7 +136,7 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -238,37 +238,39 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
         </div>
       </div>
 
-      {/* Main Registration Modal - Fix for layout issues */}
+      {/* Main Registration Modal - Fixed Positioning and Scroll */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-            <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)} />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Overlay Removed */}
+            
+            {/* Added max-h-[90vh] and flex-col to ensure it fits and scrolls internally */}
             <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-scale-in border border-slate-200">
                 
-                {/* Header */}
-                <div className="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
+                {/* Header - Fixed */}
+                <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                     <div>
                         <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                            <Building2 className="w-5 h-5 text-brand-600"/> 
+                            <Building2 className="w-6 h-6 text-brand-600"/> 
                             {editingId ? 'Editar Cadastro' : 'Novo Empreendimento'}
                         </h3>
-                        <p className="text-xs text-slate-500">Preencha os dados abaixo</p>
+                        <p className="text-xs text-slate-500">Dados cadastrais e produtivos</p>
                     </div>
-                    <button onClick={() => setIsModalOpen(false)} className="p-1.5 bg-white rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm">
+                    <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto p-5 bg-slate-50/30">
-                    <form id="enterpriseForm" onSubmit={handleSubmitContact} className="space-y-4">
+                {/* Scrollable Body - CHANGED bg-slate-50/30 to bg-slate-50 for solid background */}
+                <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
+                    <form id="enterpriseForm" onSubmit={handleSubmitContact} className="space-y-6">
                         
-                        {/* Row 1: Enterprise Main Data */}
-                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        {/* Section 1: Enterprise Info */}
+                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
-                            <h4 className="text-xs font-bold text-brand-700 uppercase tracking-wide mb-3 flex items-center gap-2">
-                                <Map className="w-4 h-4"/> Dados do Empreendimento
+                            <h4 className="text-xs font-bold text-brand-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+                                <Map className="w-4 h-4"/> Identificação & Localização
                             </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                                 <div className="md:col-span-6">
                                     <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nome do Empreendimento</label>
                                     <input type="text" required className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 outline-none" 
@@ -306,17 +308,17 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                             </div>
                         </div>
 
-                        {/* Row 2: Split Columns */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {/* Section 2: Split Columns */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             
                             {/* Productive Data */}
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-                                <h4 className="text-xs font-bold text-indigo-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <h4 className="text-xs font-bold text-indigo-700 uppercase tracking-wide mb-4 flex items-center gap-2">
                                     <LayoutGrid className="w-4 h-4"/> Dados Produtivos
                                 </h4>
-                                <div className="space-y-3">
-                                    <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Atividade</label>
                                             <select className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
@@ -330,7 +332,7 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                                                 value={contactForm.mainProduct} onChange={e => setContactForm({...contactForm, mainProduct: e.target.value})} placeholder="Ex: Mel"/>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nº Homens</label>
                                             <input type="number" min="0" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" 
@@ -342,25 +344,22 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                                                 value={contactForm.womenCount} onChange={e => setContactForm({...contactForm, womenCount: parseInt(e.target.value) || 0})}/>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-slate-500 italic text-right pt-1">
-                                         Total: <span className="font-bold text-indigo-600">{(contactForm.menCount || 0) + (contactForm.womenCount || 0)}</span>
-                                    </p>
                                 </div>
                             </div>
 
                             {/* Representative */}
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-                                <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <h4 className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-4 flex items-center gap-2">
                                     <UserIcon className="w-4 h-4"/> Representante
                                 </h4>
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     <div>
                                         <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nome Completo</label>
                                         <input type="text" required className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" 
                                             value={contactForm.name} onChange={e => setContactForm({...contactForm, name: e.target.value})}/>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">CPF / RG</label>
                                             <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none" 
@@ -381,17 +380,17 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                             </div>
                         </div>
 
-                        {/* Internal Control (Compact) */}
-                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        {/* Internal Control */}
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-6 items-center justify-between">
                             <div className="flex items-center gap-2 text-slate-500">
-                                <ClipboardList className="w-4 h-4"/>
-                                <span className="text-xs font-bold uppercase">Controle Interno</span>
+                                <ClipboardList className="w-5 h-5"/>
+                                <span className="text-xs font-bold uppercase tracking-wide">Controle Interno</span>
                             </div>
                             <div className="flex flex-1 gap-4 w-full sm:w-auto">
                                 <div className="flex-1">
                                     <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Responsável</label>
                                     <select 
-                                        className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-slate-400 outline-none"
+                                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-slate-400 outline-none"
                                         value={contactForm.registeredByRole}
                                         onChange={e => setContactForm({...contactForm, registeredByRole: e.target.value})}
                                     >
@@ -405,7 +404,7 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                                     <input 
                                         type="date" 
                                         readOnly 
-                                        className="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs bg-slate-100 text-slate-500 cursor-not-allowed"
+                                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-slate-100 text-slate-500 cursor-not-allowed"
                                         value={contactForm.registeredDate}
                                     />
                                 </div>
@@ -415,15 +414,15 @@ export const Empreendimentos: React.FC<EmpreendimentosProps> = ({
                     </form>
                 </div>
 
-                {/* Footer Actions */}
-                <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 shrink-0 flex justify-between items-center">
+                {/* Footer Actions - Fixed */}
+                <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 flex justify-between items-center">
                     <button onClick={() => setIsModalOpen(false)} className="text-sm font-bold text-slate-500 hover:text-slate-700 px-4 py-2">
                         Cancelar
                     </button>
                     <button 
                         type="submit" 
                         form="enterpriseForm"
-                        className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-2 px-6 rounded-lg shadow-lg shadow-brand-200 flex items-center gap-2 transform active:scale-95 transition-all text-sm"
+                        className="bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-lg shadow-brand-200 flex items-center gap-2 transform active:scale-95 transition-all text-sm"
                     >
                         <Save className="w-4 h-4"/> {editingId ? 'Atualizar' : 'Salvar Cadastro'}
                     </button>

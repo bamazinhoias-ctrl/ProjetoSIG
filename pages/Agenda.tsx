@@ -105,10 +105,10 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
     .sort((a, b) => a.time.localeCompare(b.time));
 
   return (
-    <div className="h-full animate-fade-in flex flex-col lg:flex-row gap-4">
+    <div className="animate-fade-in flex flex-col lg:flex-row gap-4 pb-10">
       
-      {/* LEFT: Calendar View */}
-      <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+      {/* LEFT: Calendar View - Removed h-full and overflow-hidden to allow full expansion */}
+      <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
         {/* Header */}
         <div className="shrink-0 px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <div className="flex items-center gap-3">
@@ -134,8 +134,8 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
             )}
         </div>
 
-        {/* Grid */}
-        <div className="flex-1 p-5 overflow-y-auto">
+        {/* Grid - Removed overflow-y-auto to let it grow naturally */}
+        <div className="p-5">
             <div className="grid grid-cols-7 mb-2">
                 {WEEKDAYS.map(day => (
                     <div key={day} className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest pb-2">
@@ -145,7 +145,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
             </div>
             <div className="grid grid-cols-7 gap-1.5 min-h-0">
                 {Array.from({ length: firstDay }).map((_, i) => (
-                    <div key={`empty-${i}`} className="min-h-[100px] bg-slate-50/30 rounded-lg border border-transparent"></div>
+                    <div key={`empty-${i}`} className="min-h-[120px] bg-slate-50/30 rounded-lg border border-transparent"></div>
                 ))}
                 
                 {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -155,15 +155,15 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                     const isSelected = selectedDate.getDate() === day && selectedDate.getMonth() === month && selectedDate.getFullYear() === year;
                     const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
                     
-                    // Show only first 2 items to prevent clustering
-                    const visibleApps = dayApps.slice(0, 2);
-                    const hiddenCount = dayApps.length - 2;
+                    // Show only first 3 items to prevent clustering, adjusted logic
+                    const visibleApps = dayApps.slice(0, 3);
+                    const hiddenCount = dayApps.length - 3;
 
                     return (
                         <div 
                             key={day}
                             onClick={() => handleDayClick(day)}
-                            className={`min-h-[100px] border rounded-lg p-1.5 cursor-pointer transition-all hover:shadow-md relative group flex flex-col ${
+                            className={`min-h-[120px] border rounded-lg p-1.5 cursor-pointer transition-all hover:shadow-md relative group flex flex-col ${
                                 isSelected ? 'border-brand-400 ring-1 ring-brand-400 bg-brand-50/20' : 
                                 isToday ? 'border-brand-200 bg-brand-50/5' : 'border-slate-100 hover:border-brand-200'
                             }`}
@@ -194,9 +194,9 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
         </div>
       </div>
 
-      {/* RIGHT: Daily Detail Sidebar */}
-      <div className="w-full lg:w-80 flex flex-col gap-6">
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm h-full flex flex-col">
+      {/* RIGHT: Daily Detail Sidebar - Kept fixed height or stickiness if desired, but letting it flow for now */}
+      <div className="w-full lg:w-80 flex flex-col gap-6 shrink-0">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm h-fit min-h-[500px] flex flex-col sticky top-4">
             <div className="p-4 border-b border-slate-100 bg-slate-50 rounded-t-xl flex justify-between items-center">
                 <div>
                     <h3 className="font-bold text-slate-700 flex items-center gap-2 text-sm">
@@ -212,7 +212,7 @@ export const Agenda: React.FC<AgendaProps> = ({ appointments, contacts, users, o
                 </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 max-h-[calc(100vh-200px)]">
                 {dailyAppointments.length === 0 ? (
                     <div className="text-center py-10 opacity-50 flex flex-col items-center justify-center h-full">
                         <Briefcase className="w-10 h-10 mb-2 text-slate-300"/>

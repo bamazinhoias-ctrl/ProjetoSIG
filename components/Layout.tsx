@@ -279,12 +279,11 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
         </div>
       </aside>
 
-      {/* Main Content Area - Modified for Auto-Hide Header */}
-      <main className="flex-1 relative flex flex-col h-screen overflow-hidden bg-slate-50/50 dark:bg-slate-950 transition-colors duration-300">
+      {/* Main Content Area - Solid Background & Fixed Header */}
+      <main className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         
-        {/* Floating/Hiding Header Container */}
-        <div className="absolute top-0 left-0 right-0 z-40 transition-transform duration-300 ease-in-out transform -translate-y-[calc(100%-8px)] hover:translate-y-0 group">
-          <header className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-8 py-4 flex justify-between items-center shadow-lg transition-colors duration-300">
+        {/* Fixed Header */}
+        <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 py-4 flex justify-between items-center shadow-sm z-30 shrink-0">
             <div className="flex items-center gap-4">
               {/* Mobile Menu Trigger */}
               <Menu className="w-6 h-6 text-slate-400 lg:hidden" />
@@ -328,16 +327,10 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, currentUser, cesolN
                   Online
               </div>
             </div>
-          </header>
-          
-          {/* Hover Trigger Bar (The "Lip") */}
-          <div className="h-2 w-full bg-gradient-to-r from-transparent via-brand-500/30 to-transparent cursor-pointer flex justify-center items-start opacity-70 group-hover:opacity-0 transition-opacity">
-               <ChevronDown className="w-3 h-3 text-brand-600 animate-bounce mt-[-2px]" />
-          </div>
-        </div>
-
+        </header>
+        
         {/* Scrollable Content Container */}
-        <div className="flex-1 overflow-y-auto p-8 pt-4 pb-20 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
+        <div className="flex-1 overflow-y-auto p-8 pt-6 pb-20 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
           {children}
         </div>
       </main>
